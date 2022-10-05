@@ -47,11 +47,10 @@ public class LngLat {
     }
 
     public LngLat nextPosition(Compass direction) {
-        double angle = direction.getAngle();
+        double angle = Math.toRadians(direction.getAngle());
         double newLat = distanceTolerance * Math.cos(angle);
         double newLng = distanceTolerance * Math.sin(angle);
-        LngLat newPosition = new LngLat(newLng, newLat);
-        return newPosition;
+        return new LngLat(newLng, newLat);
     }
 
     // Getters
