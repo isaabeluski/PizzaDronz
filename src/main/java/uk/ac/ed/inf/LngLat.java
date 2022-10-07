@@ -14,7 +14,7 @@ public class LngLat {
         this.lat = lat;
     }
 
-    public boolean inCentralArea() throws MalformedURLException {
+    public boolean inCentralArea() {
 
         List<LngLat> centralCoordinates = CentralAreaClient.getInstance().centralCoordinates();
 
@@ -24,10 +24,12 @@ public class LngLat {
 
         int count = 0;
         for (int i = 0; i < centralCoordinates.size() - 1; i++) {
-            if (this.lng < centralCoordinates.get(i).getLng()
-                    && this.lng > centralCoordinates.get(i+1).getLng()) {
-                if (this.lat < centralCoordinates.get(i).getLng()
-                        || this.lat < centralCoordinates.get(i+1).getLng()) {
+            if ((this.lng < centralCoordinates.get(i).getLng()
+                    && this.lng > centralCoordinates.get(i+1).getLng()) ||
+                    (this.lng > centralCoordinates.get(i).getLng()
+                            && this.lng < centralCoordinates.get(i+1).getLng())) {
+                if (this.lat < centralCoordinates.get(i).getLat()
+                        || this.lat < centralCoordinates.get(i+1).getLat()) {
                     count++;
                 }
             }

@@ -2,20 +2,24 @@ package uk.ac.ed.inf;
 
 public class CentralArea {
     public String name;
-    public double lng;
-    public double lat;
+    public double longitude;
+    public double latitude;
 
-    public CentralArea(String name, double lng, double lat) {
-        this.lat = lat;
-        this.lng = lng;
+    public CentralArea(String name, double longitude, double latitude) {
         this.name = name;
+        this.longitude = longitude;
+        this.latitude = latitude;
     }
 
-    public double getLat() {
-        return lat;
+    CentralArea() {
+
     }
 
-    public double getLng() {
-        return lng;
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
     }
 }

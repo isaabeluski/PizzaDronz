@@ -26,7 +26,7 @@ public class CentralAreaClient {
         return centralArea;
     }
 
-    public List<LngLat> centralCoordinates() throws MalformedURLException {
+    public List<LngLat> centralCoordinates() {
 
         try {
 
@@ -36,12 +36,15 @@ public class CentralAreaClient {
 
             URL url = new URL(baseUrl + endUrl);
 
-            List<CentralArea> centralAreas = (List<CentralArea>) new ObjectMapper().readValue(url, CentralArea.class);
+            List<CentralArea> centralAreas = List.of(new ObjectMapper().readValue(url, CentralArea[].class));
 
             List<LngLat> coordinates = new ArrayList<LngLat>();
             for (CentralArea area : centralAreas) {
-                coordinates.add(new LngLat(area.getLng(), area.getLat()));
+                LngLat coord = new LngLat(area.getLongitude(), area.getLatitude());
+                coordinates.add(coord);
             }
+
+            coordinates.add(new LngLat(centralAreas.get(0).getLongitude(), centralAreas.get(0).getLongitude()));
 
             return coordinates;
             
