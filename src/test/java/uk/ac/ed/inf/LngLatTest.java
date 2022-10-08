@@ -23,4 +23,28 @@ public class LngLatTest
         assertFalse(test2);
 
     }
+
+    public void testDistanceTo() {
+        LngLat point = new LngLat(-3.1869,55.9445);
+        LngLat point2 = new LngLat(-5,60);
+        double distance = point.distanceTo(point2);
+        assertEquals(4.44234, Math.round(distance* 100000d) / 100000d);
+        double distance2= point.distanceTo(point);
+        assertEquals(0.0,distance2);
+    }
+
+    public void testCloseTo() {
+        LngLat point = new LngLat(-3.1869,55.9445);
+        LngLat point2 = new LngLat(-3.1869 + 0.00014,55.9445);
+        boolean isClose = point.closeTo(point2);
+        assertTrue(isClose);
+    }
+
+    public void testNextPosition() {
+        LngLat point = new LngLat(0.0,0.0);
+        LngLat nextPos = point.nextPosition(Compass.EAST);
+        LngLat expected = new LngLat(0.0,0.00015);
+        assertEquals(expected.getLng(),nextPos.getLng());
+        assertEquals(expected.getLat(),nextPos.getLat());
+    }
 }
