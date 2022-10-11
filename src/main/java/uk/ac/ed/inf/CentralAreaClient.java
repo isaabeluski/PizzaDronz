@@ -40,7 +40,6 @@ public class CentralAreaClient {
             }
 
             // Adds the first point at the end
-            coordinates.add(new LngLat(centralAreas.get(0).getLng(), centralAreas.get(0).getLng()));
 
             return coordinates;
             

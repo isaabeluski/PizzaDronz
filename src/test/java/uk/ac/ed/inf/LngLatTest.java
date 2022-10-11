@@ -28,21 +28,31 @@ public class LngLatTest
     }
 
     public void testCornersInCentralArea() {
-        LngLat corner1 = new LngLat(-3.190578818321228, 55.94402412577528);
+        LngLat corner1 = new LngLat(-3.192473, 55.946233);
         boolean testCorner1 = corner1.inCentralArea();
         assertTrue(testCorner1);
 
-        LngLat corner2 = new LngLat(-3.1899887323379517, 55.94284650540911);
+        LngLat corner2 = new LngLat(-3.192473, 55.942617);
         boolean testCorner2 = corner2.inCentralArea();
         assertTrue(testCorner2);
 
-        LngLat corner3 = new LngLat(-3.187097311019897, 55.94328811724263);
+        LngLat corner3 = new LngLat(-3.184319, 55.942617);
         boolean testCorner3 = corner3.inCentralArea();
         assertTrue(testCorner3);
 
-        LngLat corner4 = new LngLat(-3.190578818321228, 55.94402412577528);
+        LngLat corner4 = new LngLat(-3.184319, 55.946233);
         boolean testCorner4 = corner4.inCentralArea();
         assertTrue(testCorner4);
+    }
+
+    public void testInLine() {
+
+        LngLat point = new LngLat(-3.192473, 55.944425);
+        boolean test = point.inCentralArea();
+        assertTrue(test);
+
+
+
     }
 
     public void testDistanceTo() {

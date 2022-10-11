@@ -22,20 +22,31 @@ public record LngLat (double lng, double lat){
 
         int count = 0;
         for (int i = 0; i < centralCoordinates.size() - 1; i++) {
-            // if point is between the longitudes of two points, and its latitude is less that one of the points
-            // then we add one to the count
-            if ((this.lng < centralCoordinates.get(i).lng()
-                    && this.lng > centralCoordinates.get(i+1).lng()) ||
-                    (this.lng > centralCoordinates.get(i).lng()
-                            && this.lng < centralCoordinates.get(i+1).lng())) {
-                if (this.lat < centralCoordinates.get(i).lat()
-                        || this.lat < centralCoordinates.get(i+1).lat()) {
+
+            // Longitudes and latitudes of the current and next points
+            double lngPoint = centralCoordinates.get(i).lng();
+            double latPoint = centralCoordinates.get(i).lat();
+            double lngNextPoint = centralCoordinates.get(i+1).lng();
+            double latNextPoint = centralCoordinates.get(i+1).lat();
+
+            // If point is between the longitudes of two points
+            if ((this.lng <= lngPoint && this.lng >= lngNextPoint) ||
+                    (this.lng >= lngPoint && this.lng <= lngNextPoint)) {
+
+                double slope = (latNextPoint - latPoint) / (lngNextPoint - lngPoint);
+                double p = (slope * (this.lng - lngPoint)) + latPoint;
+
+                if (this.lng <= p) {
                     count++;
                 }
+
+                // TODO: Checkear cuando cae en una esquina
+                // TODO: Checkear cuando cae en la línea en si
             }
         }
 
         // If the count is odd, then the point is within the Central Area
+        System.out.println(count);
         return (count % 2 != 0);
     }
 
@@ -72,4 +83,10 @@ public record LngLat (double lng, double lat){
     }
 
 
+    /**
+     if (this.lat < centralCoordinates.get(i).lat()
+     || this.lat < centralCoordinates.get(i+1).lat()) {
+     count++;
+     }
+     **/
 }

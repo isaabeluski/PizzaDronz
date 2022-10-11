@@ -42,7 +42,11 @@ public class Order {
             }
         }
 
-        return cost + 1000;
+        if (cost != 0) {
+            cost +=100;
+        }
+
+        return cost;
     }
 
 }
