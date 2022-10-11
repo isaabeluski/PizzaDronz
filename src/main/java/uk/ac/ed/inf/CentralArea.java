@@ -1,25 +1,27 @@
 package uk.ac.ed.inf;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class CentralArea {
     public String name;
-    public double longitude;
-    public double latitude;
-
-    public CentralArea(String name, double longitude, double latitude) {
-        this.name = name;
-        this.longitude = longitude;
-        this.latitude = latitude;
-    }
+    public double lng;
+    public double lat;
 
     CentralArea() {
-
     }
 
-    public double getLatitude() {
-        return latitude;
+    @JsonProperty("longitude")
+    public double getLng() {
+        return lng;
     }
 
-    public double getLongitude() {
-        return longitude;
+    @JsonProperty("latitude")
+    public double getLat() {
+        return lat;
+    }
+
+    @JsonProperty("name")
+    public String getName() {
+        return name;
     }
 }

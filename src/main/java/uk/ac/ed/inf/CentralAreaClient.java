@@ -13,8 +13,6 @@ import java.util.List;
 public class CentralAreaClient {
 
     private static CentralAreaClient centralArea;
-    private String baseUrl = "https://ilp-rest.azurewebsites.net/";
-    private String endUrl = "centralArea";
 
     private CentralAreaClient() {
     }
@@ -30,30 +28,22 @@ public class CentralAreaClient {
 
         try {
 
-            if (!baseUrl.endsWith("/")) {
-                baseUrl += "/";
-            }
-
-            URL url = new URL(baseUrl + endUrl);
+            String baseUrl = "https://ilp-rest.azurewebsites.net/centralArea";
+            URL url = new URL(baseUrl);
 
             List<CentralArea> centralAreas = List.of(new ObjectMapper().readValue(url, CentralArea[].class));
 
-            List<LngLat> coordinates = new ArrayList<LngLat>();
+            List<LngLat> coordinates = new ArrayList<>();
             for (CentralArea area : centralAreas) {
-                LngLat coord = new LngLat(area.getLongitude(), area.getLatitude());
+                LngLat coord = new LngLat(area.getLng(), area.getLat());
                 coordinates.add(coord);
             }
 
-            coordinates.add(new LngLat(centralAreas.get(0).getLongitude(), centralAreas.get(0).getLongitude()));
+            // Adds the first point at the end
+            coordinates.add(new LngLat(centralAreas.get(0).getLng(), centralAreas.get(0).getLng()));
 
             return coordinates;
             
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        } catch (StreamReadException e) {
-            throw new RuntimeException(e);
-        } catch (DatabindException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

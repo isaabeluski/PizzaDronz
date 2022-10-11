@@ -11,17 +11,38 @@ public class LngLatTest
     extends  TestCase
 {
     public void testInCentralArea() {
-        List<LngLat> areas = CentralAreaClient.getInstance().centralCoordinates();
-        assertEquals(5, areas.size());
 
+        // Tests for random points inside the polygon
         LngLat point = new LngLat(-3.1869,55.9445);
         boolean test = point.inCentralArea();
         assertTrue(test);
 
+
+    }
+
+    public void testNotInCentralArea() {
+
         LngLat point2 = new LngLat(-5,60);
         boolean test2 = point2.inCentralArea();
         assertFalse(test2);
+    }
 
+    public void testCornersInCentralArea() {
+        LngLat corner1 = new LngLat(-3.190578818321228, 55.94402412577528);
+        boolean testCorner1 = corner1.inCentralArea();
+        assertTrue(testCorner1);
+
+        LngLat corner2 = new LngLat(-3.1899887323379517, 55.94284650540911);
+        boolean testCorner2 = corner2.inCentralArea();
+        assertTrue(testCorner2);
+
+        LngLat corner3 = new LngLat(-3.187097311019897, 55.94328811724263);
+        boolean testCorner3 = corner3.inCentralArea();
+        assertTrue(testCorner3);
+
+        LngLat corner4 = new LngLat(-3.190578818321228, 55.94402412577528);
+        boolean testCorner4 = corner4.inCentralArea();
+        assertTrue(testCorner4);
     }
 
     public void testDistanceTo() {
@@ -44,7 +65,7 @@ public class LngLatTest
         LngLat point = new LngLat(0.0,0.0);
         LngLat nextPos = point.nextPosition(Compass.EAST);
         LngLat expected = new LngLat(0.0,0.00015);
-        assertEquals(expected.getLng(),nextPos.getLng());
-        assertEquals(expected.getLat(),nextPos.getLat());
+        assertEquals(expected.lng(),nextPos.lng());
+        assertEquals(expected.lat(),nextPos.lat());
     }
 }
