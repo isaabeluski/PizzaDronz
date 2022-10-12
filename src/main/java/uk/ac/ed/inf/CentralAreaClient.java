@@ -1,14 +1,9 @@
 package uk.ac.ed.inf;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 public class CentralAreaClient {
 
@@ -24,22 +19,26 @@ public class CentralAreaClient {
         return centralArea;
     }
 
-    public List<LngLat> centralCoordinates() {
+    public LngLat[] centralCoordinates() {
 
         try {
 
             String baseUrl = "https://ilp-rest.azurewebsites.net/centralArea";
             URL url = new URL(baseUrl);
 
-            List<CentralArea> centralAreas = List.of(new ObjectMapper().readValue(url, CentralArea[].class));
+            CentralAreaPoint[] centralAreas = new ObjectMapper().readValue(url, CentralAreaPoint[].class);
 
-            List<LngLat> coordinates = new ArrayList<>();
-            for (CentralArea area : centralAreas) {
-                LngLat coord = new LngLat(area.getLng(), area.getLat());
-                coordinates.add(coord);
+            LngLat[] coordinates = new LngLat[centralAreas.length];
+            int i = 0;
+            for (CentralAreaPoint point : centralAreas) {
+                LngLat coord = new LngLat(point.getLng(), point.getLat());
+                coordinates[i] = coord;
+                i++;
             }
 
             // Adds the first point at the end
+
+            //coordinates.set(3, new LngLat(-3.1843194291422,55.9464023239621));
 
             return coordinates;
             

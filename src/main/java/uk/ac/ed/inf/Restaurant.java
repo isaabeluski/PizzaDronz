@@ -5,22 +5,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Restaurant {
 
     @JsonProperty("name")
-    public String name;
+    private String name;
 
     @JsonProperty("longitude")
-    public double lng;
+    private double lng;
 
     @JsonProperty("latitude")
-    public double ltd;
+    private double ltd;
 
     @JsonProperty("menu")
-    public Menu[] menus;
+    private Menu[] menus;
 
     public Restaurant(String name, double lng, double ltd, Menu[] menus){
         this.name = name;
@@ -33,6 +31,11 @@ public class Restaurant {
 
     }
 
+    /**
+     * Gets restaurants from the REST server
+     * @param serverBaseAddress The URL
+     * @return List of restaurants
+     */
     public static Restaurant[] getRestaurantFromRestServer(URL serverBaseAddress) {
         try {
             Restaurant[] restaurants =
@@ -43,6 +46,10 @@ public class Restaurant {
         }
     }
 
+    /**
+     * Gets the menu of a restaurant
+     * @return The menu, which is a list of dishes with their respective prices.
+     */
     public Menu[] getMenu() {
         return menus;
     }

@@ -9,11 +9,11 @@ public class OrderTest extends TestCase {
 
     String baseUrl = "https://ilp-rest.azurewebsites.net/restaurants";
 
-    public void testGetDeliveryCost() throws MalformedURLException {
+    public void testGetDeliveryCost() throws MalformedURLException, InvalidPizzaCombinationException {
         Restaurant[] restaurants = Restaurant.getRestaurantFromRestServer(new URL(baseUrl));
         Order order = new Order();
         int cost = order.getDeliveryCost(restaurants, "Meat Lover");
-        assertEquals(2400, cost);
+        assertEquals(1500, cost);
 
     }
 }

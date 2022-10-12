@@ -1,52 +1,81 @@
 package uk.ac.ed.inf;
 
-import java.net.MalformedURLException;
-import java.util.List;
 
+/**
+ * Class used for representing a point
+ * @param lng
+ * @param lat
+ */
 public record LngLat (double lng, double lat){
 
     private static final double distanceTolerance = 0.00015;
 
     /**
-     * Checks if a point is within the Central Area.
-     * @return true if point is in Central Area
+     * Checks if a point is within the Central Area. It counts how many times a 'ray' coming from the
+     * point being tested, intersects the edges of the polygon. If this number is even, the point
+     * lies outside the polygon; if odd, it belongs inside.
+     * @return True if the point is in the Central Area.
      */
     public boolean inCentralArea() {
 
         // Gets coordinates from the REST server
-        List<LngLat> centralCoordinates = CentralAreaClient.getInstance().centralCoordinates();
+        LngLat[] centralCoordinates = CentralAreaClient.getInstance().centralCoordinates();
 
-        if (centralCoordinates.size() < 3) {
+        // If there are less than 3 points, it is not a polygon
+        if (centralCoordinates.length < 3) {
             return false;
         }
 
         int count = 0;
-        for (int i = 0; i < centralCoordinates.size() - 1; i++) {
+        for (int i = 0; i < centralCoordinates.length; i++) {
 
-            // Longitudes and latitudes of the current and next points
-            double lngPoint = centralCoordinates.get(i).lng();
-            double latPoint = centralCoordinates.get(i).lat();
-            double lngNextPoint = centralCoordinates.get(i+1).lng();
-            double latNextPoint = centralCoordinates.get(i+1).lat();
+            // Longitudes and latitudes of the current point and next one.
+            double lngPoint = centralCoordinates[i].lng();
+            double latPoint = centralCoordinates[i].lat();
+            double lngNextPoint = centralCoordinates[(i+1)%centralCoordinates.length].lng();
+            double latNextPoint = centralCoordinates[(i+1)%(centralCoordinates.length)].lat();
 
-            // If point is between the longitudes of two points
-            if ((this.lng <= lngPoint && this.lng >= lngNextPoint) ||
-                    (this.lng >= lngPoint && this.lng <= lngNextPoint)) {
+            // Checks if testPoint is between the latitudes of two points
+            if ((this.lat <= latPoint && this.lat >= latNextPoint) ||
+                    (this.lat >= latPoint && this.lat <= latNextPoint)) {
 
-                double slope = (latNextPoint - latPoint) / (lngNextPoint - lngPoint);
-                double p = (slope * (this.lng - lngPoint)) + latPoint;
+                // Checks if the line between the two points is vertical
+                if (lngPoint == lngNextPoint) {
+
+                    // Checks that the testPoint is within the vertical edge
+                    if (this.lng == lngPoint) {
+                        return true;
+                    }
+
+                    // If the longitude of testPoint is smaller, then it intersects
+                    if (this.lng < lngPoint) {
+                        count++;
+                        continue;
+
+                    }
+                    continue;
+                }
+
+                // Checks if the testPoint is within a non-vertical edge
+                double slopeOfLine = (latNextPoint - latPoint) / (lngNextPoint - lngPoint);
+                double intercept = latPoint - (slopeOfLine * lngPoint);
+
+                if (this.lat == (slopeOfLine * this.lng) + intercept) {
+                    return true;
+                }
+
+                // If the edge is non-vertical, check if testPoint intersects
+                double slope = (lngNextPoint - lngPoint) / (latNextPoint - latPoint);
+                double p = (slope * (this.lat - latPoint)) + lngPoint;
 
                 if (this.lng <= p) {
                     count++;
                 }
-
-                // TODO: Checkear cuando cae en una esquina
-                // TODO: Checkear cuando cae en la línea en si
             }
+
         }
 
         // If the count is odd, then the point is within the Central Area
-        System.out.println(count);
         return (count % 2 != 0);
     }
 
@@ -71,7 +100,7 @@ public record LngLat (double lng, double lat){
     }
 
     /**
-     * Calculates the position after the drone does one move towards a certain direction.
+     * Calculates the position of the drone after moving towards a certain direction.
      * @param direction - a compass direction.
      * @return the position calculated.
      */
@@ -82,11 +111,4 @@ public record LngLat (double lng, double lat){
         return new LngLat(newLng, newLat);
     }
 
-
-    /**
-     if (this.lat < centralCoordinates.get(i).lat()
-     || this.lat < centralCoordinates.get(i+1).lat()) {
-     count++;
-     }
-     **/
 }

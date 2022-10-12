@@ -11,20 +11,16 @@ public class LngLatTest
     extends  TestCase
 {
     public void testInCentralArea() {
-
         // Tests for random points inside the polygon
-        LngLat point = new LngLat(-3.1869,55.9445);
-        boolean test = point.inCentralArea();
+        LngLat appleton = new LngLat(-3.1869,55.9445);
+        boolean test = appleton.inCentralArea();
         assertTrue(test);
-
-
     }
 
     public void testNotInCentralArea() {
-
-        LngLat point2 = new LngLat(-5,60);
-        boolean test2 = point2.inCentralArea();
-        assertFalse(test2);
+        LngLat point = new LngLat(-5,60);
+        boolean test = point.inCentralArea();
+        assertFalse(test);
     }
 
     public void testCornersInCentralArea() {
@@ -45,14 +41,28 @@ public class LngLatTest
         assertTrue(testCorner4);
     }
 
-    public void testInLine() {
-
+    public void testInLineLeft() {
         LngLat point = new LngLat(-3.192473, 55.944425);
         boolean test = point.inCentralArea();
         assertTrue(test);
+    }
 
+    public void testInLineRight() {
+        LngLat point = new LngLat(-3.184319, 55.944425);
+        boolean test = point.inCentralArea();
+        assertTrue(test);
+    }
 
+    public void testInLineUp() {
+        LngLat point = new LngLat(-3.188396, 55.946233);
+        boolean test = point.inCentralArea();
+        assertTrue(test);
+    }
 
+    public void testInLineDown() {
+        LngLat point = new LngLat(-3.188396, 55.942617);
+        boolean test = point.inCentralArea();
+        assertTrue(test);
     }
 
     public void testDistanceTo() {
@@ -60,6 +70,8 @@ public class LngLatTest
         LngLat point2 = new LngLat(-5,60);
         double distance = point.distanceTo(point2);
         assertEquals(4.44234, Math.round(distance* 100000d) / 100000d);
+
+        // Distance to itself
         double distance2= point.distanceTo(point);
         assertEquals(0.0,distance2);
     }
