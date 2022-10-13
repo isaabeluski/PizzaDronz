@@ -10,8 +10,8 @@ import java.util.List;
 public class LngLatTest
     extends  TestCase
 {
+
     public void testInCentralArea() {
-        // Tests for random points inside the polygon
         LngLat appleton = new LngLat(-3.1869,55.9445);
         boolean test = appleton.inCentralArea();
         assertTrue(test);
@@ -21,6 +21,14 @@ public class LngLatTest
         LngLat point = new LngLat(-5,60);
         boolean test = point.inCentralArea();
         assertFalse(test);
+
+        LngLat izq = new LngLat(-3.1942462451488,55.9446287639296);
+        boolean izqResult = izq.inCentralArea();
+        assertFalse(izqResult);
+
+        LngLat sameLevelOfEdge = new LngLat(-3.1975280615679, 55.9462329999972);
+        boolean result = (sameLevelOfEdge.inCentralArea());
+        assertFalse(result);
     }
 
     public void testCornersInCentralArea() {
@@ -83,11 +91,27 @@ public class LngLatTest
         assertTrue(isClose);
     }
 
-    public void testNextPosition() {
+    public void testNextPositionEast() {
         LngLat point = new LngLat(0.0,0.0);
         LngLat nextPos = point.nextPosition(Compass.EAST);
-        LngLat expected = new LngLat(0.0,0.00015);
+        LngLat expected = new LngLat(0.00015,0.0);
         assertEquals(expected.lng(),nextPos.lng());
         assertEquals(expected.lat(),nextPos.lat());
+    }
+
+    public void testNextPositionNorth() {
+        LngLat point = new LngLat(0.0,0.0);
+        LngLat nextPos = point.nextPosition(Compass.WEST);
+        LngLat expected = new LngLat(-0.00015,0.0);
+        assertEquals(expected.lng(),nextPos.lng());
+        assertEquals(expected.lat(),nextPos.lat());
+    }
+
+    public void testNextPositionHovering() {
+        LngLat point = new LngLat(1.0,2.0);
+        LngLat nextPos = point.nextPosition(null);
+        assertEquals(point.lng(),nextPos.lng());
+        assertEquals(point.lat(),nextPos.lat());
+
     }
 }

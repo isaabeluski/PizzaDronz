@@ -3,7 +3,7 @@ package uk.ac.ed.inf;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Class for representing the coordinates of the Central Area
+ * Represents the points of the Central Area.
  */
 
 public class CentralAreaPoint {

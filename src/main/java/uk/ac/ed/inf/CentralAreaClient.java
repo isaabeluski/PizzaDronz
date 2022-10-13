@@ -5,40 +5,50 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URL;
 
+/**
+ * Singleton which retrieves REST Server information about the Central Area.
+ */
+
 public class CentralAreaClient {
 
     private static CentralAreaClient centralArea;
+    private static LngLat[] centralCoordinates;
 
     private CentralAreaClient() {
     }
 
+    /**
+     * If an object of this class already exists, it returns it. Otherwise, it creates a new one.
+     * Additionally, if no centralCoordinates have been assigned, it calls the REST server to assign them.
+     * @return an instance of CentralAreaClient.
+     */
     public static CentralAreaClient getInstance() {
         if (centralArea == null) {
             centralArea = new CentralAreaClient();
         }
+        if (centralCoordinates == null) {
+            centralCoordinates = centralArea.centralCoordinates();
+        }
         return centralArea;
     }
 
+    /**
+     * Retrieves the coordinates from the REST serve of the points that represent the polygon in Central Area.
+     * @return A list of the points of the polygon representing the Central Area.
+     */
     public LngLat[] centralCoordinates() {
-
         try {
-
-            String baseUrl = "https://ilp-rest.azurewebsites.net/centralArea";
-            URL url = new URL(baseUrl);
+            URL url = new URL("https://ilp-rest.azurewebsites.net/centralArea");
 
             CentralAreaPoint[] centralAreas = new ObjectMapper().readValue(url, CentralAreaPoint[].class);
 
+            // Converts the Central Areas points into LngLat objects.
             LngLat[] coordinates = new LngLat[centralAreas.length];
             int i = 0;
             for (CentralAreaPoint point : centralAreas) {
-                LngLat coord = new LngLat(point.getLng(), point.getLat());
-                coordinates[i] = coord;
+                coordinates[i] = new LngLat(point.getLng(), point.getLat());
                 i++;
             }
-
-            // Adds the first point at the end
-
-            //coordinates.set(3, new LngLat(-3.1843194291422,55.9464023239621));
 
             return coordinates;
             
@@ -47,4 +57,11 @@ public class CentralAreaClient {
         }
     }
 
+    /**
+     * Gets list of LngLat objects which represent the points of Central Area.
+     * @return Central Area points.
+     */
+    public static LngLat[] getCentralCoordinates() {
+        return centralCoordinates;
+    }
 }

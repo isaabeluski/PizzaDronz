@@ -2,9 +2,9 @@ package uk.ac.ed.inf;
 
 
 /**
- * Class used for representing a point
- * @param lng
- * @param lat
+ * Represents a point in a map.
+ * @param lng Longitude of the point.
+ * @param lat Latitude of the point.
  */
 public record LngLat (double lng, double lat){
 
@@ -18,14 +18,16 @@ public record LngLat (double lng, double lat){
      */
     public boolean inCentralArea() {
 
-        // Gets coordinates from the REST server
-        LngLat[] centralCoordinates = CentralAreaClient.getInstance().centralCoordinates();
+        // Gets coordinates from the REST server.
+        CentralAreaClient.getInstance();
+        LngLat[] centralCoordinates = CentralAreaClient.getCentralCoordinates();
 
-        // If there are less than 3 points, it is not a polygon
+        // If there are less than 3 points, it is not a polygon.
         if (centralCoordinates.length < 3) {
             return false;
         }
 
+        // Counts the intersections.
         int count = 0;
         for (int i = 0; i < centralCoordinates.length; i++) {
 
@@ -35,19 +37,19 @@ public record LngLat (double lng, double lat){
             double lngNextPoint = centralCoordinates[(i+1)%centralCoordinates.length].lng();
             double latNextPoint = centralCoordinates[(i+1)%(centralCoordinates.length)].lat();
 
-            // Checks if testPoint is between the latitudes of two points
+            // Checks if testPoint is between the latitudes of two points.
             if ((this.lat <= latPoint && this.lat >= latNextPoint) ||
                     (this.lat >= latPoint && this.lat <= latNextPoint)) {
 
-                // Checks if the line between the two points is vertical
+                // Checks if the line between the two points is vertical.
                 if (lngPoint == lngNextPoint) {
 
-                    // Checks that the testPoint is within the vertical edge
+                    // Checks that the testPoint is within the vertical edge.
                     if (this.lng == lngPoint) {
                         return true;
                     }
 
-                    // If the longitude of testPoint is smaller, then it intersects
+                    // If the longitude of testPoint is smaller, then it intersects.
                     if (this.lng < lngPoint) {
                         count++;
                         continue;
@@ -61,27 +63,39 @@ public record LngLat (double lng, double lat){
                 double intercept = latPoint - (slopeOfLine * lngPoint);
 
                 if (this.lat == (slopeOfLine * this.lng) + intercept) {
-                    return true;
+                    // Checks for a horizontal edge.
+                    if (slopeOfLine == 0 && ((this.lng < lngPoint && this.lng < lngNextPoint) ||
+                            (this.lng > lngPoint && this.lng > lngNextPoint))) {
+                        return false;
+                    } else {
+                        return true;
+                    }
                 }
 
-                // If the edge is non-vertical, check if testPoint intersects
-                double slope = (lngNextPoint - lngPoint) / (latNextPoint - latPoint);
-                double p = (slope * (this.lat - latPoint)) + lngPoint;
+                if (this.lat == latPoint) {
+                    if (this.lng < lngPoint) {
+                        continue;
+                    }
+                }
 
-                if (this.lng <= p) {
+                // If the edge is non-vertical, check if testPoint intersects.
+                double intersects = (((lngNextPoint - lngPoint) / (latNextPoint - latPoint)) * (this.lat - latPoint))
+                        + lngPoint;
+
+                if (this.lng < intersects) {
                     count++;
                 }
-            }
 
+            }
         }
 
-        // If the count is odd, then the point is within the Central Area
+        // If the count is odd, then the point is within the Central Area.
         return (count % 2 != 0);
     }
 
     /**
      * Calculates the distance between two points.
-     * @param point
+     * @param point Calculates the distance to this point.
      * @return distance between points
      */
     public double distanceTo(LngLat point) {
@@ -92,7 +106,7 @@ public record LngLat (double lng, double lat){
 
     /**
      * Checks if a point is within the distance tolerance.
-     * @param point
+     * @param point Calculates if it is close to this point.
      * @return true if it is within that distance.
      */
     public boolean closeTo(LngLat point) {
@@ -105,9 +119,15 @@ public record LngLat (double lng, double lat){
      * @return the position calculated.
      */
     public LngLat nextPosition(Compass direction) {
+
+        // If the drone is hovering.
+        if (direction == null) {
+            return this;
+        }
+
         double angle = Math.toRadians(direction.getAngle());
-        double newLat = distanceTolerance * Math.cos(angle);
-        double newLng = distanceTolerance * Math.sin(angle);
+        double newLat = this.lat + (distanceTolerance * Math.sin(angle));
+        double newLng = this.lng + (distanceTolerance * Math.cos(angle));
         return new LngLat(newLng, newLat);
     }
 

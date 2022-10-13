@@ -4,7 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
+
+/**
+ * Represents a restaurant and retrieves its data from the REST server.
+ */
 
 public class Restaurant {
 
@@ -20,16 +25,6 @@ public class Restaurant {
     @JsonProperty("menu")
     private Menu[] menus;
 
-    public Restaurant(String name, double lng, double ltd, Menu[] menus){
-        this.name = name;
-        this.lng = lng;
-        this.ltd = ltd;
-        this.menus = menus;
-    }
-
-    public Restaurant() {
-
-    }
 
     /**
      * Gets restaurants from the REST server
@@ -37,10 +32,10 @@ public class Restaurant {
      * @return List of restaurants
      */
     public static Restaurant[] getRestaurantFromRestServer(URL serverBaseAddress) {
+        String endpoint = "restaurants";
+        String url = serverBaseAddress.toString() + endpoint;
         try {
-            Restaurant[] restaurants =
-                    new ObjectMapper().readValue(serverBaseAddress, Restaurant[].class);
-            return restaurants;
+            return new ObjectMapper().readValue(new URL(url), Restaurant[].class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
