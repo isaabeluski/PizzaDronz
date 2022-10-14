@@ -83,7 +83,8 @@ public record LngLat (double lng, double lat){
                 double lngNextNextPoint = centralCoordinates[(i+2)%(centralCoordinates.length)].lat();
 
                 if (this.lng < lngNextPoint
-                        && ((latNextPoint > latPoint && latNextPoint > latNextNextPoint) || (latNextPoint < latPoint && latNextPoint < latNextNextPoint))
+                        && ((latNextPoint > latPoint && latNextPoint > latNextNextPoint)
+                            || (latNextPoint < latPoint && latNextPoint < latNextNextPoint))
                         && this.lat == latNextPoint
                         && lngPoint != lngNextNextPoint) {
                     count++;
