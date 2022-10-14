@@ -25,7 +25,6 @@ public class Restaurant {
     @JsonProperty("menu")
     private Menu[] menus;
 
-
     /**
      * Gets restaurants from the REST server
      * @param serverBaseAddress The URL
@@ -48,4 +47,5 @@ public class Restaurant {
     public Menu[] getMenu() {
         return menus;
     }
+
 }

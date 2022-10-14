@@ -19,15 +19,11 @@ public class CentralAreaClient {
 
     /**
      * If an object of this class already exists, it returns it. Otherwise, it creates a new one.
-     * Additionally, if no centralCoordinates have been assigned, it calls the REST server to assign them.
      * @return an instance of CentralAreaClient.
      */
     public static CentralAreaClient getInstance() {
         if (centralArea == null) {
             centralArea = new CentralAreaClient();
-        }
-        if (centralCoordinates == null) {
-            centralCoordinates = centralArea.centralCoordinates();
         }
         return centralArea;
     }
@@ -58,10 +54,14 @@ public class CentralAreaClient {
     }
 
     /**
-     * Gets list of LngLat objects which represent the points of Central Area.
+     * Gets list of points which represent the coordinates of Central Area.
+     * Additionally, if no centralCoordinates have been assigned, it calls the REST server to assign them.
      * @return Central Area points.
      */
     public static LngLat[] getCentralCoordinates() {
+        if (centralCoordinates == null) {
+            centralCoordinates = getInstance().centralCoordinates();
+        }
         return centralCoordinates;
     }
 }

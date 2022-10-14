@@ -2,7 +2,7 @@ package uk.ac.ed.inf;
 
 
 /**
- * Represents a point in a map.
+ * Represents a point in the map.
  * @param lng Longitude of the point.
  * @param lat Latitude of the point.
  */
@@ -19,7 +19,6 @@ public record LngLat (double lng, double lat){
     public boolean inCentralArea() {
 
         // Gets coordinates from the REST server.
-        CentralAreaClient.getInstance();
         LngLat[] centralCoordinates = CentralAreaClient.getCentralCoordinates();
 
         // If there are less than 3 points, it is not a polygon.
@@ -64,7 +63,8 @@ public record LngLat (double lng, double lat){
 
                 if (this.lat == (slopeOfLine * this.lng) + intercept) {
                     // Checks for a horizontal edge.
-                    if (slopeOfLine == 0 && ((this.lng < lngPoint && this.lng < lngNextPoint) ||
+                    if (slopeOfLine == 0 &&
+                            ((this.lng < lngPoint && this.lng < lngNextPoint) ||
                             (this.lng > lngPoint && this.lng > lngNextPoint))) {
                         return false;
                     } else {
@@ -76,6 +76,17 @@ public record LngLat (double lng, double lat){
                     if (this.lng < lngPoint) {
                         continue;
                     }
+                }
+
+                // Checks for a peak in a polygon.
+                double latNextNextPoint = centralCoordinates[(i+2)%centralCoordinates.length].lng();
+                double lngNextNextPoint = centralCoordinates[(i+2)%(centralCoordinates.length)].lat();
+
+                if (this.lng < lngNextPoint
+                        && ((latNextPoint > latPoint && latNextPoint > latNextNextPoint) || (latNextPoint < latPoint && latNextPoint < latNextNextPoint))
+                        && this.lat == latNextPoint
+                        && lngPoint != lngNextNextPoint) {
+                    count++;
                 }
 
                 // If the edge is non-vertical, check if testPoint intersects.

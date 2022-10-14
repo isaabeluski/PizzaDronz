@@ -17,9 +17,6 @@ public class CentralAreaPoint {
     @JsonProperty("latitude")
     private double lat;
 
-    CentralAreaPoint() {
-    }
-
     /**
      * Gets the longitude of a point.
      * @return The longitude.

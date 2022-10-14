@@ -51,7 +51,7 @@ public class Order {
                 }
             }
 
-            // If the pizza does not correspond to any restaurant
+            // If the pizza does not correspond to any restaurant.
             if (restaurantOrdered == null) {
                 throw new InvalidPizzaCombinationException("Pizza does not exist!");
             }
@@ -71,7 +71,7 @@ public class Order {
                 throw new InvalidPizzaCombinationException("Pizzas do not come from the same restaurant");
             }
 
-            // Calculates cost
+            // Calculates cost.
             Menu[] menus = restaurantOrdered.getMenu();
             for (String pizza : pizzasOrdered) {
                 for (Menu menu : menus) {
