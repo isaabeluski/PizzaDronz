@@ -101,10 +101,26 @@ public class LngLatTest
 
     public void testNextPositionNorth() {
         LngLat point = new LngLat(0.0,0.0);
+        LngLat nextPos = point.nextPosition(Compass.NORTH);
+        LngLat expected = new LngLat(0.0,0.00015);
+        assertEquals(expected.lng(),nextPos.lng(), 1e-12);
+        assertEquals(expected.lat(),nextPos.lat(), 1e-12);
+    }
+
+    public void testNextPositionWest() {
+        LngLat point = new LngLat(0.0,0.0);
         LngLat nextPos = point.nextPosition(Compass.WEST);
         LngLat expected = new LngLat(-0.00015,0.0);
-        assertEquals(expected.lng(),nextPos.lng());
-        assertEquals(expected.lat(),nextPos.lat());
+        assertEquals(expected.lng(),nextPos.lng(), 1e-12);
+        assertEquals(expected.lat(),nextPos.lat(), 1e-12);
+    }
+
+    public void testNextPositionSouth() {
+        LngLat point = new LngLat(0.0,0.0);
+        LngLat nextPos = point.nextPosition(Compass.SOUTH);
+        LngLat expected = new LngLat(0.0,-0.00015);
+        assertEquals(expected.lng(),nextPos.lng(), 1e-12);
+        assertEquals(expected.lat(),nextPos.lat(), 1e-12);
     }
 
     public void testNextPositionHovering() {
