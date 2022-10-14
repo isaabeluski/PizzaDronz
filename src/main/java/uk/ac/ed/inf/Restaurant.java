@@ -26,6 +26,12 @@ public class Restaurant {
     private Menu[] menus;
 
     /**
+     * Default constructor.
+     */
+    Restaurant() {
+    }
+
+    /**
      * Gets restaurants from the REST server
      * @param serverBaseAddress The URL
      * @return List of restaurants

@@ -106,7 +106,7 @@ public record LngLat (double lng, double lat){
 
     /**
      * Calculates the distance between two points.
-     * @param point Calculates the distance to this point.
+     * @param point Calculates the distance to this point (LngLat object).
      * @return distance between points
      */
     public double distanceTo(LngLat point) {
@@ -117,7 +117,7 @@ public record LngLat (double lng, double lat){
 
     /**
      * Checks if a point is within the distance tolerance.
-     * @param point Calculates if it is close to this point.
+     * @param point A LngLat object.
      * @return true if it is within that distance.
      */
     public boolean closeTo(LngLat point) {
@@ -126,8 +126,8 @@ public record LngLat (double lng, double lat){
 
     /**
      * Calculates the position of the drone after moving towards a certain direction.
-     * @param direction - a compass direction.
-     * @return the position calculated.
+     * @param direction A compass direction.
+     * @return The position calculated.
      */
     public LngLat nextPosition(Compass direction) {
 

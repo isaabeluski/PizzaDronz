@@ -7,6 +7,11 @@ public class Menu {
     private String name;
     private int priceInPence;
 
+    /**
+     * Default constructor.
+     */
+    Menu() {
+    }
 
     /**
      * Gets the name of a pizza.

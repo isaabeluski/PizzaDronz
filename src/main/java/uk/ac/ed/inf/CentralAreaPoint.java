@@ -18,6 +18,12 @@ public class CentralAreaPoint {
     private double lat;
 
     /**
+     * Default constructor.
+     */
+    CentralAreaPoint() {
+    }
+
+    /**
      * Gets the longitude of a point.
      * @return The longitude.
      */

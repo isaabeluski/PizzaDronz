@@ -15,6 +15,13 @@ public class Order {
     private String[] orderItems;
 
     /**
+     * Default constructor.
+     */
+    Order() {
+
+    }
+
+    /**
      * Calculates the cost in pence of having all the pizzas delivered by the drone, including the standard
      * delivery charge of 1 pound per delivery.
      * @param restaurants The list of participating restaurants.
