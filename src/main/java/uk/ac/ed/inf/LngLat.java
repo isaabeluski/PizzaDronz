@@ -8,7 +8,8 @@ package uk.ac.ed.inf;
  */
 public record LngLat (double lng, double lat){
 
-    private static final double distanceTolerance = 0.00015;
+    private static final double DISTANCE_TOLERANCE = 0.00015;
+
 
     /**
      * Checks if a point is within the Central Area. It counts how many times a 'ray' coming from the
@@ -122,7 +123,7 @@ public record LngLat (double lng, double lat){
      * @return true if it is within that distance.
      */
     public boolean closeTo(LngLat point) {
-        return distanceTo(point) < distanceTolerance;
+        return distanceTo(point) < DISTANCE_TOLERANCE;
     }
 
     /**
@@ -138,9 +139,14 @@ public record LngLat (double lng, double lat){
         }
 
         double angle = Math.toRadians(direction.getAngle());
-        double newLat = this.lat + (distanceTolerance * Math.sin(angle));
-        double newLng = this.lng + (distanceTolerance * Math.cos(angle));
+        double newLat = this.lat + (DISTANCE_TOLERANCE * Math.sin(angle));
+        double newLng = this.lng + (DISTANCE_TOLERANCE * Math.cos(angle));
         return new LngLat(newLng, newLat);
     }
+
+    public Node toNode() {
+        return new Node(this);
+    }
+
 
 }

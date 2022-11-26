@@ -102,4 +102,5 @@ public enum Compass {
     public double getAngle() {
         return angle;
     }
+
 }

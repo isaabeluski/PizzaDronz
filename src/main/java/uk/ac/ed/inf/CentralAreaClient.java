@@ -14,6 +14,8 @@ public class CentralAreaClient {
     private static CentralAreaClient centralArea;
     private static LngLat[] centralCoordinates;
 
+
+
     private CentralAreaClient() {
     }
 

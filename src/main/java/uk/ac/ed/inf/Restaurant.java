@@ -20,7 +20,7 @@ public class Restaurant {
     private double lng;
 
     @JsonProperty("latitude")
-    private double ltd;
+    private double lat;
 
     @JsonProperty("menu")
     private Menu[] menus;
@@ -53,5 +53,15 @@ public class Restaurant {
     public Menu[] getMenu() {
         return menus;
     }
+    public double getLng(){
+        return lng;
+    }
 
+    public double getLat(){
+        return lat;
+    }
+
+    public String getName() {
+        return name;
+    }
 }
