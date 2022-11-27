@@ -13,7 +13,6 @@ public class Node implements Comparable<Node>{
     private Double G = 0.0;
     private Double H = 0.0;
     private Node parent;
-    private ArrayList<ArrayList<LngLat>> noFlyZones = NoFlyZones.getNoFlyZonesFromServer();
     private Compass direction;
 
     public Node(LngLat point)  {
@@ -21,7 +20,7 @@ public class Node implements Comparable<Node>{
     }
 
     public void calculateF() {
-        this.F = this.G + this.H;
+        this.F = 0.9*this.G + this.H;
     }
 
     /**
@@ -47,22 +46,24 @@ public class Node implements Comparable<Node>{
      * @param destination The final destination.
      * @return A list of nodes representing the possible next position.
      */
-    public ArrayList<Node> findLegalNeighbours(Node destination) {
+    public ArrayList<Node> findLegalNeighbours(Node destination, ArrayList<ArrayList<LngLat>> noFlyZones) {
         ArrayList<Node> legalNeighbours = new ArrayList<>();
         Compass[] values = Compass.class.getEnumConstants();
         for (Compass compassDirection : values) {
 
+            /*
             // If you can go in a straight line, you don't need to check the neighbours behind the currentPoint
             if (!this.intersects(noFlyZones, destination)) {
                 double angle = this.getAngleFromLine(destination);
                 double angleNeighbour = compassDirection.getAngle();
-                double range1 = getRangeAngle(angle+20);
-                double range2 = getRangeAngle(angle-20);
+                double range1 = getRangeAngle(angle+25);
+                double range2 = getRangeAngle(angle-25);
                 if ( angleNeighbour > range1
                         && angleNeighbour < range2) {
                     continue;
                 }
             }
+             */
 
             Node neighbourNode = this.point.nextPosition(compassDirection).toNode();
             neighbourNode.direction = compassDirection;
@@ -142,7 +143,7 @@ public class Node implements Comparable<Node>{
      * @param destination Where the drone needs to end up 'close' to.
      * @return A list with all the points (representing the steps)
      */
-    public ArrayList<LngLat> findPath(Node destination) {
+    public ArrayList<LngLat> findPath(Node destination, ArrayList<ArrayList<LngLat>> noFlyZones) {
         PriorityQueue<Node> openList = new PriorityQueue<>();
         ArrayList<Node> closedList = new ArrayList<>();
         HashMap<LngLat, Node> all = new HashMap<>();
@@ -175,8 +176,7 @@ public class Node implements Comparable<Node>{
             }
 
             // Finds all legal neighbours of current node.
-            System.out.println("aqui es donde tarda");
-            ArrayList<Node> neighbours = currentNode.findLegalNeighbours(destination);
+            ArrayList<Node> neighbours = currentNode.findLegalNeighbours(destination, noFlyZones);
 
             for (Node neighbour : neighbours) {
 
@@ -222,7 +222,6 @@ public class Node implements Comparable<Node>{
 
             closedList.add(currentNode);
             openList.remove(currentNode);
-            System.out.println("-----------");
         }
         return null;
         // No path could be found :(

@@ -1,9 +1,7 @@
 package uk.ac.ed.inf;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.*;
-import java.util.Map;
 
 public class Drone {
     /**
@@ -16,7 +14,6 @@ public class Drone {
     public LngLat start;
     public ArrayList<Order> currentOrder;
     public static final int FULL_BATTERY = 2000;
-    public Restaurant[] restaurants = Restaurant.getRestaurantFromRestServer(new URL("https://ilp-rest.azurewebsites.net/"));
     public static final LngLat APPLETON_TOWER = new LngLat(-3.186874, 55.944494);
 
 
@@ -26,6 +23,7 @@ public class Drone {
         this.currentOrder = currentOrder;
     }
 
+    /*
     public Restaurant getClosestRestaurant(ArrayList<Restaurant> restaurants) {
         int minimumMoves = Integer.MAX_VALUE;
         Restaurant closestRestaurant = new Restaurant();
@@ -43,13 +41,36 @@ public class Drone {
         }
         return closestRestaurant;
     }
+     */
 
-    public ArrayList<LngLat> doTour() {
+    public void doTour(Restaurant[] restaurants, ArrayList<ArrayList<LngLat>> noFLyZones) {
         // Try to do it for just one order
-        Order order = currentOrder.get(0);
-        Restaurant restaurant = order.restaurantOrdered(restaurants);
-        System.out.println(restaurant.getName());
+        //Order order = currentOrder.get(2);
+        // Restaurant restaurant = order.restaurantOrdered(restaurants);
+        // Restaurant restaurant = restaurants[0];
+        // System.out.println(restaurant.getName());
+        // LngLat coordinatesRestaurant = new LngLat(restaurant.getLng(), restaurant.getLat());
+
+        for (Order order : currentOrder) {
+            Restaurant restaurant = order.restaurantOrdered(restaurants);
+            System.out.println(restaurant.getName());
+            LngLat coordinatesRestaurant = new LngLat(restaurant.getLng(), restaurant.getLat());
+            ArrayList<LngLat> path = start.toNode().findPath(coordinatesRestaurant.toNode(), noFLyZones);
+            System.out.println(path);
+        }
+
+        // return start.toNode().findPath(coordinatesRestaurant.toNode(), noFLyZones);
+
+        /*
+        HashMap<String, ArrayList<LngLat>> allPaths = new HashMap<>();
+        Restaurant restaurant = restaurants[0];
         LngLat coordinatesRestaurant = new LngLat(restaurant.getLng(), restaurant.getLat());
+        ArrayList<LngLat> path = start.toNode().findPath(coordinatesRestaurant.toNode(), noFLyZones);
+        allPaths.put(restaurant.getName(), path);
+
+        return allPaths;
+
+         */
 
         /*
         HashMap<String, ArrayList<LngLat>> allPaths = new HashMap<>();
@@ -61,7 +82,6 @@ public class Drone {
             allPaths.put(name, path);
         }
          */
-        return start.toNode().findPath(coordinatesRestaurant.toNode());
 
 
         //ArrayList<Restaurant> allRestaurants = new ArrayList<>(List.of(restaurants));

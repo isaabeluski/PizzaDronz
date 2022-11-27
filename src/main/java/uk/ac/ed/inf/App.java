@@ -44,11 +44,12 @@ import java.util.HashMap;
         Order order = new Order();
         Order[] orders = order.getOrdersFromServer(new URL(baseUrl), "2023-01-01");
         Restaurant[] restaurants = Restaurant.getRestaurantFromRestServer(new URL(baseUrl));
+        ArrayList<ArrayList<LngLat>> noFlyZones = NoFlyZones.getNoFlyZonesFromServer();
         dayOrder day = new dayOrder("2023-01-01", orders, restaurants);
         ArrayList<Order> filteredOrder = day.getFilteredOrders();
         Drone drone = new Drone(filteredOrder);
-        ArrayList<LngLat> tour = drone.doTour();
-        System.out.println(tour);
+        drone.doTour(restaurants, noFlyZones);
+        //System.out.println(tour);
 
         //GeoJson geoJson = new GeoJson();
         //geoJson.createJsonFile(geoJson.coordinates(tour));
