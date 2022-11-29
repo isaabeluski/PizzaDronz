@@ -1,9 +1,10 @@
 package uk.ac.ed.inf;
 
+import com.mapbox.geojson.Polygon;
+
+import java.awt.geom.Point2D;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Hello world!
@@ -12,54 +13,32 @@ import java.util.HashMap;
  public class App
 {
     public static void main( String[] args ) throws MalformedURLException {
-        /**
-        LngLat appleton = new LngLat(-3.1869,55.9445);
-        boolean test = appleton.inCentralArea();
-        System.out.println(test);
 
-        System.out.println("-----------------------------------");
-
-        LngLat corner1 = new LngLat(-3.192473, 55.946233);
-        boolean testCorner1 = corner1.inCentralArea();
-        System.out.println(testCorner1);
-
-        System.out.println("-----------------------------------");
-
-        LngLat inLIne = new LngLat(-3.184319, 55.944425);
-        boolean testLine = inLIne.inCentralArea();
-        System.out.println(testLine);
-
-        System.out.println("-----------------------------------");
-
-        LngLat point2 = new LngLat(-3.1869,55.9445);
-        boolean test2 = point2.inCentralArea();
-        System.out.println(test2);
-        **/
-
-        String hello = "hello";
-        System.out.println(hello.length());
+        // GETS ALL DATA FROM REST SERVER
+        Server server = new Server();
+        LngLat[] centralCoordinates = server.centralCoordinates;
+        ArrayList<ArrayList<LngLat>> noFlyZones =  server.noFlyZones;
+        ArrayList<Order> orders = server.orders;
+        Restaurant[] restaurants = server.restaurants;
+        DayOrder day = new DayOrder("2023-01-01", orders, restaurants);
 
 
-        String baseUrl = "https://ilp-rest.azurewebsites.net/";
-        Order order = new Order();
-        Order[] orders = order.getOrdersFromServer(new URL(baseUrl), "2023-01-01");
-        Restaurant[] restaurants = Restaurant.getRestaurantFromRestServer(new URL(baseUrl));
-        ArrayList<ArrayList<LngLat>> noFlyZones = NoFlyZones.getNoFlyZonesFromServer();
-        dayOrder day = new dayOrder("2023-01-01", orders, restaurants);
-        ArrayList<Order> filteredOrder = day.getFilteredOrders();
-        Drone drone = new Drone(filteredOrder);
-        drone.doTour(restaurants, noFlyZones);
+        // ALL ORDERS OF A DAY
+        //Drone drone = new Drone(day.getFilteredOrders());
+        //ArrayList<LngLat> tour = drone.doTour(restaurants, noFlyZones);
         //System.out.println(tour);
 
+        // ONE RESTAURANT
+        //LngLat rest = new LngLat(restaurants[0].getLng(), restaurants[0].getLat());
+        //ArrayList<LngLat> path = Path.getPathPoints(Drone.APPLETON_TOWER.toNode(), rest.toNode(), noFlyZones);
         //GeoJson geoJson = new GeoJson();
-        //geoJson.createJsonFile(geoJson.coordinates(tour));
+        //geoJson.outputGeoJsonFolder("01", "01", "2023", path);
 
-        /*
-        Node point = new LngLat(	-3.1839, 	55.9445).toNode();
-        Node point2 = new LngLat(	-3.183873999999998,55.944494).toNode();
+        Node start = new Node(new LngLat(-3.1890,55.9451));
+        Node end = new Node(new LngLat(	-3.1891,55.9451));
 
-        System.out.println(point.getDirection(point2));
-         */
+        boolean doesIntersect = start.intersects(end, noFlyZones);
+        System.out.println(doesIntersect);
 
 
     }

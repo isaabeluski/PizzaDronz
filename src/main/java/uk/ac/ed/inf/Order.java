@@ -163,4 +163,16 @@ public class Order {
     public int getPriceTotalInPence() {
         return priceTotalInPence;
     }
+
+    public String getCreditCardExpiry() {
+        return creditCardExpiry;
+    }
+
+    public String getCreditCardNumber() {
+        return creditCardNumber;
+    }
+
+    public String getOrderNo() {
+        return orderNo;
+    }
 }
