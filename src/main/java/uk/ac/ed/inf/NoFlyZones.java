@@ -1,40 +1,73 @@
 package uk.ac.ed.inf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mapbox.geojson.*;
 
-import java.awt.*;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import com.mapbox.turf.TurfJoins;
 
-public class NoFlyZones extends Polygon {
 
-    public static ArrayList<ArrayList<LngLat>> getNoFlyZonesFromServer() {
-        String endpoint = "noFlyZones";
-        String url = "https://ilp-rest.azurewebsites.net/noFlyZones";
+public class NoFlyZones {
 
+    private final ArrayList<Line2D.Double> noFlyLines;
+    private static NoFlyZones noFlyZones;
+
+    private NoFlyZones() {
+        this.noFlyLines = getNoFlyLines("noFlyZones");
+    }
+
+    public static NoFlyZones getInstance() {
+        if (noFlyZones == null) {
+            noFlyZones = new NoFlyZones();
+        }
+        return noFlyZones;
+    }
+
+
+    public ArrayList<Line2D.Double> getNoFlyLines(String endPoint) {
+        String url = "https://ilp-rest.azurewebsites.net/" + endPoint;
+        ArrayList<Line2D.Double> noFlyLines = new ArrayList<>();
         try {
-
             NfzPoint[] noFlyZones = new ObjectMapper().readValue(new URL(url), NfzPoint[].class);
-
-            ArrayList<ArrayList<LngLat>> lala = new ArrayList<>();
             for (NfzPoint noFlyZone : noFlyZones) {
-                ArrayList<LngLat> zones1 = new ArrayList<>();
                 Double[][] coordinates = noFlyZone.getCoordinates();
-                for (Double[] coordinate : coordinates) {
-                    LngLat point = new LngLat(coordinate[0], coordinate[1]);
-                    zones1.add(point);
+                for (int i = 0; i < coordinates.length - 1; i++) {
+                    Line2D.Double line = new Line2D.Double(
+                            coordinates[i][0],
+                            coordinates[i][1],
+                            coordinates[i + 1][0],
+                            coordinates[i + 1][1]);
+                    noFlyLines.add(line);
                 }
-                lala.add(zones1);
             }
-
-            return lala;
-
+            return noFlyLines;
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
-        //return null;
     }
+
+    public boolean inFlyZones(List<Polygon> noFlyZones) {
+        for (Polygon noFlyZone : noFlyZones) {
+            if (TurfJoins.inside(Point.fromLngLat(55.9442, -3.1883), noFlyZone)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean intersecting(Line2D.Double line) {
+        for (Line2D.Double noFlyLine : noFlyLines) {
+            if (line.intersectsLine(noFlyLine) || noFlyLine.contains(line.getP2()) || noFlyLine.contains(line.getP1())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
 }

@@ -5,11 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.net.URL;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
+import java.util.HashMap;
 
 /**
  * Represents an order.
@@ -68,7 +64,6 @@ public class Order {
     /**
      * Get the restaurant from the corresponding order.
      * @param restaurants List of all restaurants.
-     * @param pizzasOrdered List of pizzas from an order.
      * @return The restaurant that corresponds to the order.
      */
     public Restaurant restaurantOrdered(Restaurant[] restaurants) {
@@ -76,67 +71,44 @@ public class Order {
 
         // Finds the restaurant where the order is being made to.
         for (Restaurant restaurant : restaurants) {
-            Menu[] menu = restaurant.getMenu();
-            for (Menu pizza : menu) {
-                if (pizza.getName().equals(orderItems[0])) {
-                    restaurantOrdered = restaurant;
-                    break;
-                }
+            if (restaurant.menuCost().containsKey(orderItems[0])) {
+                restaurantOrdered = restaurant;
             }
             if (restaurantOrdered != null) {
                 break;
             }
         }
-
         return restaurantOrdered;
     }
 
+    /**
+     * Checks whether the order items come from the same restaurant.
+     * @param restaurants List of all restaurants.
+     * @return True if the order is valid, false otherwise.
+     */
     public boolean arePizzasFromSameRestaurant(Restaurant[] restaurants, String... pizzasOrdered) {
         Restaurant restaurant = restaurantOrdered(restaurants);
-
-        // Checks if all pizzas come from the same restaurant.
-        int count = 0;
         for (String pizza : pizzasOrdered) {
-            for (Menu dish : restaurant.getMenu()) {
-                if (pizza.equals(dish.getName())) {
-                    count++;
-                    break;
-                }
+            if (!restaurant.menuCost().containsKey(pizza)) {
+                return false;
             }
         }
-
-        return count == pizzasOrdered.length;
-    }
-
-    public LocalDate stringToDate(String string) {
-        if (string.length() > 5) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy, MM, dd", Locale.ENGLISH);
-            return LocalDate.parse(string, formatter);
-        } else {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM, yy", Locale.ENGLISH);
-            return LocalDate.parse(string, formatter);
-        }
+        return true;
     }
 
     /**
      * Calculates the cost in pence of having all the pizzas delivered by the drone, including the standard
      * delivery charge of 1 pound per delivery.
-     * @param restaurantOrdered The list of participating restaurants.
-     * @param pizzasOrdered Variable number of strings for the individual pizzas ordered.
+     * @param restaurantOrdered The restaurant where the order is being made to.
      * @return The cost of the pizzas being delivered by the drone in pence.
      */
     public int getDeliveryCost(Restaurant restaurantOrdered) {
         int cost = 100;
-        // Calculates cost.
-        Menu[] menus = restaurantOrdered.getMenu();
+        HashMap<String, Integer> menu = restaurantOrdered.menuCost();
         for (String pizza : orderItems) {
-            for (Menu menu : menus) {
-                if (menu.getName().equals(pizza)) {
-                    cost += menu.getPriceInPence();
-                    break;
-                }
-            }
+            cost += menu.get(pizza);
         }
+        // Calculates cost.
         return cost;
     }
 

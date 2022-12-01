@@ -69,21 +69,22 @@ public class Node implements Comparable<Node>{
         LngLat destination = finish.getPoint();
         trajectory.setLine(start.lng(), start.lat(), destination.lng(), destination.lat());
 
-        // Checks if the straight trajectory intersects with any of the noFlyZones.
+        // Checks if the line between two points intersects with any of the noFlyZones.
         //boolean intersects = false;
         for (ArrayList<LngLat> noFlyZone : noFlyZones) {
-            for (int i = 0; i < noFlyZone.size()-1; i++) {
-                Line2D.Double zoneLine = new Line2D.Double(noFlyZone.get(i).lng(),
-                        noFlyZone.get(i).lat(),
-                        noFlyZone.get(i+1).lng(),
-                        noFlyZone.get(i+1).lat());
-                if (trajectory.intersectsLine(zoneLine) || zoneLine.intersectsLine(trajectory)) {
+            for (int i = 0; i < noFlyZone.size() - 1; i++) {
+                LngLat a = noFlyZone.get(i);
+                LngLat b = noFlyZone.get(i + 1);
+                Line2D.Double noFlyZoneLine = new Line2D.Double();
+                noFlyZoneLine.setLine(a.lng(), a.lat(), b.lng(), b.lat());
+                if (trajectory.intersectsLine(noFlyZoneLine)) {
                     return true;
                 }
             }
         }
         return false;
     }
+
 
 
     // GETTERS AND SETTERS
@@ -100,10 +101,6 @@ public class Node implements Comparable<Node>{
         G = g;
     }
 
-    public void setParent(Node parent) {
-        this.parent = parent;
-    }
-
     public Node getParent() {
         return parent;
     }
@@ -112,4 +109,11 @@ public class Node implements Comparable<Node>{
         return point;
     }
 
+    public void setParent(Node parent) {
+        this.parent = parent;
+    }
+
+    public Compass getDirection() {
+        return direction;
+    }
 }

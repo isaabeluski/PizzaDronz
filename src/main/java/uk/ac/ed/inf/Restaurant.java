@@ -4,11 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashMap;
 
 /**
  * Represents a restaurant and retrieves its data from the REST server.
@@ -31,7 +30,22 @@ public class Restaurant implements Comparable<Restaurant> {
     /**
      * Default constructor.
      */
+    Restaurant(String name, double lng, double lat, Menu[] menus) {
+        this.name = name;
+        this.lng = lng;
+        this.lat = lat;
+        this.menus = menus;
+    }
+
     Restaurant() {
+    }
+
+    public HashMap<String, Integer> menuCost() {
+        HashMap<String, Integer> menu = new HashMap<>();
+        for (Menu m : menus) {
+            menu.put(m.getName(), m.getPriceInPence());
+        }
+        return menu;
     }
 
 

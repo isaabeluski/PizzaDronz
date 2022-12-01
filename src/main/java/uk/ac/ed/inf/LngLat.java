@@ -6,7 +6,7 @@ package uk.ac.ed.inf;
  * @param lng Longitude of the point.
  * @param lat Latitude of the point.
  */
-public record LngLat (double lng, double lat){
+public record LngLat (Double lng, Double lat){
 
     private static final double DISTANCE_TOLERANCE = 0.00015;
 
@@ -32,10 +32,10 @@ public record LngLat (double lng, double lat){
         for (int i = 0; i < centralCoordinates.length; i++) {
 
             // Longitudes and latitudes of the current point and next one.
-            double lngPoint = centralCoordinates[i].lng();
-            double latPoint = centralCoordinates[i].lat();
-            double lngNextPoint = centralCoordinates[(i+1)%centralCoordinates.length].lng();
-            double latNextPoint = centralCoordinates[(i+1)%(centralCoordinates.length)].lat();
+            Double lngPoint = centralCoordinates[i].lng();
+            Double latPoint = centralCoordinates[i].lat();
+            Double lngNextPoint = centralCoordinates[(i+1)%centralCoordinates.length].lng();
+            Double latNextPoint = centralCoordinates[(i+1)%(centralCoordinates.length)].lat();
 
             // Checks if testPoint is between the latitudes of two points.
             if ((this.lat <= latPoint && this.lat >= latNextPoint) ||
@@ -59,8 +59,8 @@ public record LngLat (double lng, double lat){
                 }
 
                 // Checks if the testPoint is within a non-vertical edge
-                double slopeOfLine = (latNextPoint - latPoint) / (lngNextPoint - lngPoint);
-                double intercept = latPoint - (slopeOfLine * lngPoint);
+                Double slopeOfLine = (latNextPoint - latPoint) / (lngNextPoint - lngPoint);
+                Double intercept = latPoint - (slopeOfLine * lngPoint);
 
                 if (this.lat == (slopeOfLine * this.lng) + intercept) {
                     // Checks for a horizontal edge.
@@ -80,8 +80,8 @@ public record LngLat (double lng, double lat){
                 }
 
                 // Checks for a peak in a polygon.
-                double latNextNextPoint = centralCoordinates[(i+2)%centralCoordinates.length].lng();
-                double lngNextNextPoint = centralCoordinates[(i+2)%(centralCoordinates.length)].lat();
+                Double latNextNextPoint = centralCoordinates[(i+2)%centralCoordinates.length].lng();
+                Double lngNextNextPoint = centralCoordinates[(i+2)%(centralCoordinates.length)].lat();
 
                 if (this.lng < lngNextPoint
                         && ((latNextPoint > latPoint && latNextPoint > latNextNextPoint)
@@ -92,7 +92,7 @@ public record LngLat (double lng, double lat){
                 }
 
                 // If the edge is non-vertical, check if testPoint intersects.
-                double intersects = (((lngNextPoint - lngPoint) / (latNextPoint - latPoint)) * (this.lat - latPoint))
+                Double intersects = (((lngNextPoint - lngPoint) / (latNextPoint - latPoint)) * (this.lat - latPoint))
                         + lngPoint;
 
                 if (this.lng < intersects) {
@@ -106,14 +106,26 @@ public record LngLat (double lng, double lat){
         return (count % 2 != 0);
     }
 
+    public Double getAngleFromLine(LngLat point) {
+        double angle = Math.toDegrees(Math.atan2(point.lat() - this.lat(),
+                point.lng()) - this.lng());
+        if(angle < 0){
+            angle += 360;
+        }
+        if(angle > 360){
+            angle -= 360;
+        }
+        return angle;
+    }
+
     /**
      * Calculates the distance between two points.
      * @param point Calculates the distance to this point (LngLat object).
      * @return distance between points
      */
-    public double distanceTo(LngLat point) {
-        double latDifference = Math.pow(this.lat - point.lat(), 2);
-        double lngDifference = Math.pow(this.lng - point.lng(), 2);
+    public Double distanceTo(LngLat point) {
+        Double latDifference = Math.pow(this.lat - point.lat(), 2);
+        Double lngDifference = Math.pow(this.lng - point.lng(), 2);
         return Math.sqrt(latDifference + lngDifference);
     }
 
@@ -138,9 +150,9 @@ public record LngLat (double lng, double lat){
             return this;
         }
 
-        double angle = Math.toRadians(direction.getAngle());
-        double newLat = this.lat + (DISTANCE_TOLERANCE * Math.sin(angle));
-        double newLng = this.lng + (DISTANCE_TOLERANCE * Math.cos(angle));
+        Double angle = Math.toRadians(direction.getAngle());
+        Double newLat = this.lat + (DISTANCE_TOLERANCE * Math.sin(angle));
+        Double newLng = this.lng + (DISTANCE_TOLERANCE * Math.cos(angle));
         return new LngLat(newLng, newLat);
     }
 

@@ -12,9 +12,9 @@ public class Drone {
     public int battery;
     public LngLat start;
     public ArrayList<Order> order;
+    private ArrayList<Flightpath> flightpath = new ArrayList<>();
     public static final int FULL_BATTERY = 2000;
     public static final LngLat APPLETON_TOWER = new LngLat(-3.186874, 55.944494);
-
 
     public Drone(DayOrder order) {
         this.battery = FULL_BATTERY;
@@ -23,7 +23,7 @@ public class Drone {
     }
 
     public int batteryCost(ArrayList<LngLat> path) {
-        return path.size()*2;
+        return path.size();
     }
 
     public boolean enoughBattery(ArrayList<LngLat> path) {
@@ -31,43 +31,63 @@ public class Drone {
         return battery >= batteryCost;
     }
 
+    public void move(LngLat from, LngLat to, Order order) {
+       new Flightpath(
+               order.getOrderNo(),
+               from.lng(),
+               from.lat(),
+               from.getAngleFromLine(to),
+               to.lng(),
+               to.lat()
+       );
+    }
 
-    public ArrayList<LngLat> doTour(Restaurant[] restaurants, ArrayList<ArrayList<LngLat>> noFLyZones) {
+
+    public ArrayList<LngLat> doTour(Restaurant[] restaurants) {
         ArrayList<LngLat> completeTour = new ArrayList<>();
         ArrayList<Restaurant> arrayRestaurant = new ArrayList<>(Arrays.asList(restaurants));
         Restaurant.sortRestaurants(arrayRestaurant);
 
-        for (Restaurant restaurant : arrayRestaurant) {
-            // Compute path to restaurant
-            LngLat coordinates = new LngLat(restaurant.getLng(), restaurant.getLat());
-            ArrayList<LngLat> path = Path.getPathPoints(APPLETON_TOWER.toNode(), coordinates.toNode(), noFLyZones);
-            ArrayList<LngLat> returnPath = Path.pathToStart(path);
-            ArrayList<Order> copyOrder = new ArrayList<>(order);
 
+        for (Order ord : order) {
 
-            for (Order ord : copyOrder) {
+            Restaurant correspondingRestaurant = ord.restaurantOrdered(restaurants);
+            LngLat restaurantCoordinates = new LngLat(correspondingRestaurant.getLng(), correspondingRestaurant.getLat());
+            ArrayList<LngLat> path = Path.totalPath(APPLETON_TOWER.toNode(), restaurantCoordinates.toNode(), ord);
 
-                if (batteryCost(path) > battery) {
-                    // Not enough battery so don't leave.
-                    break;
-                }
-
-                if (ord.getOrderOutcome() == OrderOutcome.ValidButNotDelivered
-                        && ord.restaurantOrdered(restaurants) == restaurant) {
-
-                    completeTour.addAll(path);
-                    completeTour.addAll(returnPath);
-                    ord.setOrderOutcome(OrderOutcome.Delivered);
-
-                    battery -= batteryCost(path);
-                }
+            if (batteryCost(path) > battery) {
+                // Not enough battery so don't leave.
+                break;
             }
 
+            if (ord.getOrderOutcome() == OrderOutcome.ValidButNotDelivered) {
+                completeTour.addAll(path);
+                flightpath.addAll(Path.getFlightpath());
+                ord.setOrderOutcome(OrderOutcome.Delivered);
+
+                battery -= batteryCost(path);
+            }
         }
 
-        System.out.println(battery);
+        // TODO: Borrar esto después.
+        System.out.println("Battery remaining: " + battery);
+        int count = 0;
+        for (Order ord : order) {
+            if (ord.getOrderOutcome() == OrderOutcome.Delivered) {
+                System.out.println("Order " + ord.restaurantOrdered(restaurants).getName() + " delivered");
+                count++;
+            }
+            if (ord.getOrderOutcome() == OrderOutcome.ValidButNotDelivered) {
+                System.out.println("Order " + ord.restaurantOrdered(restaurants).getName() + " not delivered");
+            }
+        }
+
+        System.out.println("Number of orders delivered: " + count);
         return completeTour;
     }
 
+    public ArrayList<Flightpath> getFlightpath() {
+        return flightpath;
+    }
 }
 
