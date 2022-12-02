@@ -12,7 +12,7 @@ import java.util.PriorityQueue;
 public class Path {
 
     private static final NoFlyZones noFlyZones = NoFlyZones.getInstance();
-    private static ArrayList<Flightpath> flightpath = new ArrayList<>();
+    private static final ArrayList<Flightpath> flightpath = new ArrayList<>();
 
     /**
      * Function that calculates the path the drone will need to make, using A* Algorithm.
@@ -23,11 +23,12 @@ public class Path {
 
         PriorityQueue<Node> openList = new PriorityQueue<>();
         ArrayList<Node> closedList = new ArrayList<>();
-
+        HashMap<LngLat, Node> all = new HashMap<>();
 
         start.calculateHeuristic(destination);
         start.setG(0.0);
         start.calculateF();
+        all.put(start.getPoint(), start);
 
         openList.add(start);
 
@@ -49,9 +50,15 @@ public class Path {
             for (Node neighbour : neighbours) {
 
                 // If the neighbour can be used
-                if (!noFlyZones.intersecting(new Line2D.Double(currentPoint.lng(), currentPoint.lat(), neighbour.getPoint().lng(), neighbour.getPoint().lat()))) {
+                if (!noFlyZones.intersecting(new Line2D.Double(currentPoint.lng(), currentPoint.lat(), neighbour.getPoint().lng(), neighbour.getPoint().lat())) ||
+                        !noFlyZones.inFlyZones(neighbour) || !noFlyZones.inFlyZones(currentNode)) {
                     LngLat neighbourPoint = neighbour.getPoint();
 
+                    if (all.containsKey(neighbourPoint)) { //as DS is not a graph, need to check if node is new or not.
+                        neighbour = all.get(neighbourPoint);
+                    } else {
+                        all.put(neighbourPoint, neighbour);
+                    }
 
                     // Calculates G
                     double distanceTravelled = currentNode.getG() + currentPoint.distanceTo(neighbourPoint);

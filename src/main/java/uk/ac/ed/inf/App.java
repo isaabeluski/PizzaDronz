@@ -28,7 +28,7 @@ import java.util.ArrayList;
         // ArrayList<LngLat> path = Path.getPathPoints(Drone.APPLETON_TOWER.toNode(), rest.toNode());
         GeoJson geoJson = new GeoJson();
         geoJson.outputGeoJson("01", "01", "2023", tour);
-        Flightpath.outputJson("01", "01", "2023", drone.getFlightpath());
+        // Flightpath.outputJson("01", "01", "2023", drone.getFlightpath());
 
     }
 }

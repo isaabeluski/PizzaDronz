@@ -42,6 +42,15 @@ public class Drone {
        );
     }
 
+    public HashMap<Restaurant, ArrayList<LngLat>> allPaths(Restaurant[] restaurants, Order order) {
+        HashMap<Restaurant, ArrayList<LngLat>> paths = new HashMap<>();
+        for (Restaurant restaurant : restaurants) {
+            LngLat restaurantLngLat = new LngLat(restaurant.getLng(), restaurant.getLat());
+            paths.put(restaurant, Path.totalPath(start.toNode(), restaurantLngLat.toNode(), order));
+        }
+        return paths;
+    }
+
 
     public ArrayList<LngLat> doTour(Restaurant[] restaurants) {
         ArrayList<LngLat> completeTour = new ArrayList<>();
