@@ -16,6 +16,7 @@ public class Drone {
     public static final int FULL_BATTERY = 2000;
     public static final LngLat APPLETON_TOWER = new LngLat(-3.186874, 55.944494);
 
+
     public Drone(DayOrder order) {
         this.battery = FULL_BATTERY;
         this.start = APPLETON_TOWER;
@@ -31,38 +32,26 @@ public class Drone {
         return battery >= batteryCost;
     }
 
-    public void move(LngLat from, LngLat to, Order order) {
-       new Flightpath(
-               order.getOrderNo(),
-               from.lng(),
-               from.lat(),
-               from.getAngleFromLine(to),
-               to.lng(),
-               to.lat()
-       );
-    }
-
-    public HashMap<Restaurant, ArrayList<LngLat>> allPaths(Restaurant[] restaurants, Order order) {
-        HashMap<Restaurant, ArrayList<LngLat>> paths = new HashMap<>();
-        for (Restaurant restaurant : restaurants) {
-            LngLat restaurantLngLat = new LngLat(restaurant.getLng(), restaurant.getLat());
-            paths.put(restaurant, Path.totalPath(start.toNode(), restaurantLngLat.toNode(), order));
+    public void move(ArrayList<LngLat> path, Order order) {
+        for (int i = 0; i < path.size()-1; i++) {
+            LngLat from = path.get(i);
+            LngLat to = path.get(i+1);
+            double angle = from.toNode().getDirection().getAngle();
+            Flightpath flightpath = new Flightpath(order.getOrderNo(), from.lng(), from.lat(), angle, to.lng(), to.lat());
+            this.flightpath.add(flightpath);
         }
-        return paths;
     }
 
 
     public ArrayList<LngLat> doTour(Restaurant[] restaurants) {
+        HashMap<Restaurant, ArrayList<LngLat>> allPaths = new Path(restaurants).getAllPaths();
         ArrayList<LngLat> completeTour = new ArrayList<>();
-        ArrayList<Restaurant> arrayRestaurant = new ArrayList<>(Arrays.asList(restaurants));
-        Restaurant.sortRestaurants(arrayRestaurant);
-
 
         for (Order ord : order) {
 
             Restaurant correspondingRestaurant = ord.restaurantOrdered(restaurants);
-            LngLat restaurantCoordinates = new LngLat(correspondingRestaurant.getLng(), correspondingRestaurant.getLat());
-            ArrayList<LngLat> path = Path.totalPath(APPLETON_TOWER.toNode(), restaurantCoordinates.toNode(), ord);
+            var path = allPaths.get(correspondingRestaurant);
+            move(path, ord);
 
             if (batteryCost(path) > battery) {
                 // Not enough battery so don't leave.
@@ -71,10 +60,9 @@ public class Drone {
 
             if (ord.getOrderOutcome() == OrderOutcome.ValidButNotDelivered) {
                 completeTour.addAll(path);
-                flightpath.addAll(Path.getFlightpath());
                 ord.setOrderOutcome(OrderOutcome.Delivered);
-
                 battery -= batteryCost(path);
+
             }
         }
 
@@ -92,6 +80,7 @@ public class Drone {
         }
 
         System.out.println("Number of orders delivered: " + count);
+        System.out.println(flightpath.get(0).angle);
         return completeTour;
     }
 

@@ -14,12 +14,18 @@ public class Path {
     private static final NoFlyZones noFlyZones = NoFlyZones.getInstance();
     private static final ArrayList<Flightpath> flightpath = new ArrayList<>();
 
+    private HashMap<Restaurant, ArrayList<LngLat>> allPaths = new HashMap<>();
+
+    public Path(Restaurant[] restaurants) {
+        this.allPaths = allPaths(restaurants);
+    }
+
     /**
      * Function that calculates the path the drone will need to make, using A* Algorithm.
      * @param destination Where the drone needs to end up 'close' to.
      * @return A list with all the points (representing the steps) the drone needs to take.
      */
-    private static ArrayList<LngLat> getPathPoints(Node start, Node destination, Order order) {
+    public static ArrayList<LngLat> getPathPoints(Node start, Node destination) {
 
         PriorityQueue<Node> openList = new PriorityQueue<>();
         ArrayList<Node> closedList = new ArrayList<>();
@@ -41,7 +47,7 @@ public class Path {
             // Stop if we find the destination node
             if (currentPoint.closeTo(destination.getPoint())) {
                 // Backtrack to get path
-                return backtrack(currentNode, order);
+                return backtrack(currentNode);
             }
 
             // Finds all neighbours of current node.
@@ -97,7 +103,7 @@ public class Path {
         return null;
     }
 
-    private static ArrayList<LngLat> backtrack(Node currentNode, Order order) {
+    private static ArrayList<LngLat> backtrack(Node currentNode) {
         ArrayList<LngLat> path = new ArrayList<>();
         path.add(currentNode.getPoint());
 
@@ -105,6 +111,7 @@ public class Path {
             LngLat parentPoint = currentNode.getParent().getPoint();
             path.add(parentPoint);
 
+            /*
             if (currentNode.getParent() != null) {
                 flightpath.add(new Flightpath(
                         order.getOrderNo(),
@@ -114,6 +121,7 @@ public class Path {
                         currentNode.getPoint().lng(),
                         currentNode.getPoint().lat()));
             }
+             */
 
             currentNode = currentNode.getParent();
         }
@@ -128,15 +136,29 @@ public class Path {
         return path;
     }
 
-    public static ArrayList<LngLat> totalPath(Node start, Node destination, Order order) {
-        ArrayList<LngLat> totalPath = getPathPoints(start, destination, order);
-        assert totalPath != null;
-        totalPath.addAll(pathToStart(totalPath));
+    public static ArrayList<LngLat> totalPath(Node start, Node destination) {
+        ArrayList<LngLat> path = getPathPoints(start, destination);
+        ArrayList<LngLat> totalPath = new ArrayList<>(path);
+        Collections.reverse(path);
+        totalPath.addAll(path);
         return totalPath;
+    }
+
+    public HashMap<Restaurant, ArrayList<LngLat>> allPaths(Restaurant[] restaurants) {
+        HashMap<Restaurant, ArrayList<LngLat>> paths = new HashMap<>();
+        for (Restaurant restaurant : restaurants) {
+            LngLat restaurantLngLat = new LngLat(restaurant.getLng(), restaurant.getLat());
+            paths.put(restaurant, Path.totalPath(Drone.APPLETON_TOWER.toNode(), restaurantLngLat.toNode()));
+        }
+        return paths;
     }
 
     public static ArrayList<Flightpath> getFlightpath() {
         return flightpath;
+    }
+
+    public HashMap<Restaurant, ArrayList<LngLat>> getAllPaths() {
+        return allPaths;
     }
 }
 
