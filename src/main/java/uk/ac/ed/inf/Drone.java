@@ -14,12 +14,14 @@ public class Drone {
     public ArrayList<Order> order;
     private ArrayList<Flightpath> flightpath = new ArrayList<>();
     public static final int FULL_BATTERY = 2000;
+    public LngLat currentPos;
     public static final LngLat APPLETON_TOWER = new LngLat(-3.186874, 55.944494);
 
 
     public Drone(DayOrder order) {
         this.battery = FULL_BATTERY;
         this.start = APPLETON_TOWER;
+        this.currentPos = APPLETON_TOWER;
         this.order = order.sortOrderByRestaurant();
     }
 
@@ -32,18 +34,18 @@ public class Drone {
         return battery >= batteryCost;
     }
 
-    public void move(ArrayList<LngLat> path, Order order) {
-        for (int i = 0; i < path.size()-1; i++) {
-            LngLat from = path.get(i);
-            LngLat to = path.get(i+1);
-            double angle = from.toNode().getDirection().getAngle();
-            Flightpath flightpath = new Flightpath(order.getOrderNo(), from.lng(), from.lat(), angle, to.lng(), to.lat());
-            this.flightpath.add(flightpath);
-        }
+    public void hover(Order order) {
+        LngLat nextPos = currentPos.nextPosition(null);
+        flightpath.add(new Flightpath(
+                order.getOrderNo(),
+                currentPos,
+                null,
+                nextPos));
+        this.battery -= 1;
     }
 
 
-    public ArrayList<LngLat> doTour(Restaurant[] restaurants) {
+    public ArrayList<LngLat> makeDeliveries(Restaurant[] restaurants) {
         HashMap<Restaurant, ArrayList<LngLat>> allPaths = new Path(restaurants).getAllPaths();
         ArrayList<LngLat> completeTour = new ArrayList<>();
 
@@ -51,7 +53,6 @@ public class Drone {
 
             Restaurant correspondingRestaurant = ord.restaurantOrdered(restaurants);
             var path = allPaths.get(correspondingRestaurant);
-            move(path, ord);
 
             if (batteryCost(path) > battery) {
                 // Not enough battery so don't leave.
@@ -65,6 +66,7 @@ public class Drone {
 
             }
         }
+
 
         // TODO: Borrar esto después.
         System.out.println("Battery remaining: " + battery);
@@ -80,7 +82,7 @@ public class Drone {
         }
 
         System.out.println("Number of orders delivered: " + count);
-        System.out.println(flightpath.get(0).angle);
+        //System.out.println(flightpath.get(0).angle);
         return completeTour;
     }
 

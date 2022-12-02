@@ -21,13 +21,13 @@ public class Flightpath {
     Double toLatitude;
     int ticksSinceStartOfCalculation;
 
-    public Flightpath(String orderNo, Double fromLongitude, Double fromLatitude, Double angle, Double toLongitude, Double toLatitude) {
+    public Flightpath(String orderNo, LngLat from, Double angle, LngLat to) {
         this.orderNo = orderNo;
-        this.fromLongitude = fromLongitude;
-        this.fromLatitude = fromLatitude;
+        this.fromLongitude = from.lng();
+        this.fromLatitude = from.lat();
         this.angle = angle;
-        this.toLongitude = toLongitude;
-        this.toLatitude = toLatitude;
+        this.toLongitude = to.lng();
+        this.toLatitude = to.lat();
         //this.ticksSinceStartOfCalculation = ticksSinceStartOfCalculation;
     }
 

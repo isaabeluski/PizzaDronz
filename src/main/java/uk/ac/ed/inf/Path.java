@@ -1,16 +1,11 @@
 package uk.ac.ed.inf;
 
-import java.awt.geom.Line2D;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.PriorityQueue;
+import java.util.*;
 
 /**
  * Represents the path the drone will take from the start to its destination.
  */
 public class Path {
-
     private static final NoFlyZones noFlyZones = NoFlyZones.getInstance();
     private static final ArrayList<Flightpath> flightpath = new ArrayList<>();
 
@@ -51,13 +46,12 @@ public class Path {
             }
 
             // Finds all neighbours of current node.
-            ArrayList<Node> neighbours = currentNode.findLegalNeighbours();
+            ArrayList<Node> neighbours = currentNode.findNeighbours();
 
             for (Node neighbour : neighbours) {
 
                 // If the neighbour can be used
-                if (!noFlyZones.intersecting(new Line2D.Double(currentPoint.lng(), currentPoint.lat(), neighbour.getPoint().lng(), neighbour.getPoint().lat())) ||
-                        !noFlyZones.inFlyZones(neighbour) || !noFlyZones.inFlyZones(currentNode)) {
+                if (!noFlyZones.isIntersecting(currentNode,neighbour))  {
                     LngLat neighbourPoint = neighbour.getPoint();
 
                     if (all.containsKey(neighbourPoint)) { //as DS is not a graph, need to check if node is new or not.
@@ -152,6 +146,23 @@ public class Path {
         }
         return paths;
     }
+
+    public ArrayList<Flightpath> getMoves(Order order) {
+        ArrayList<Flightpath> moves = new ArrayList<>();
+        this.path.forEach(node -> {
+            if (node.getParent() != null) {
+                moves.add(new Flightpath(
+                        order.getOrderNo(),
+                        node.getParent().getPoint().lng(),
+                        node.getParent().getPoint().lat(),
+                        node.getDirection().getAngle(),
+                        node.getPoint().lng(),
+                        node.getPoint().lat()));
+            }
+        });
+        return moves;
+    }
+
 
     public static ArrayList<Flightpath> getFlightpath() {
         return flightpath;

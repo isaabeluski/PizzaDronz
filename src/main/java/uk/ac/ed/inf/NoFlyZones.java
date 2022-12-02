@@ -17,12 +17,9 @@ public class NoFlyZones {
     private final ArrayList<Line2D.Double> noFlyLines;
     private static NoFlyZones noFlyZones;
 
-    private final ArrayList<Polygon> noFlyPolygons;
-
     private NoFlyZones() {
         NfzPoint[] nfzPoints = getNoFlyPoints("noFlyZones");
         this.noFlyLines = getNoFlyLines(nfzPoints);
-        this.noFlyPolygons = getNoFlyPolygons(nfzPoints);
     }
 
     public static NoFlyZones getInstance() {
@@ -58,37 +55,18 @@ public class NoFlyZones {
         return noFlyLines;
     }
 
-    public ArrayList<Polygon> getNoFlyPolygons(NfzPoint[] noFlyPoints) {
-        ArrayList<Polygon> noFlyPolygons = new ArrayList<>();
-        for (NfzPoint point : noFlyPoints) {
-            Double[][] coordinates = point.getCoordinates();
-            List<Point> points = new ArrayList<>();
-            List<List<Point>> allPoints = new ArrayList<>();
+    public boolean isIntersecting(Node start, Node destination) {
+        //build line
+        var x = start.getPoint().toPoint();
+        var y = destination.getPoint().toPoint();
+        var line = new Line2D.Double(x.longitude(), x.latitude(),
+                y.longitude(), y.latitude());
 
-            for (Double[] coordinate : coordinates) {
-                points.add(Point.fromLngLat(coordinate[0], coordinate[1]));
+        for (var noFlyLine : this.noFlyLines) {
+                if (noFlyLine.intersectsLine(line) || line.intersectsLine(noFlyLine)) {
+                    return true;
+                }
             }
-            allPoints.add(points);
-            noFlyPolygons.add(Polygon.fromLngLats(allPoints));
-        }
-        return noFlyPolygons;
-    }
-
-    public boolean inFlyZones(Node node) {
-        for (Polygon noFlyZone : noFlyPolygons) {
-            if (TurfJoins.inside(Point.fromLngLat(node.getPoint().lng(), node.getPoint().lat()), noFlyZone)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean intersecting(Line2D.Double line) {
-        for (Line2D.Double noFlyLine : noFlyLines) {
-            if (line.intersectsLine(noFlyLine) || noFlyLine.contains(line.getP2()) || noFlyLine.contains(line.getP1())) {
-                return true;
-            }
-        }
         return false;
     }
 

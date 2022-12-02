@@ -1,6 +1,8 @@
 package uk.ac.ed.inf;
 
 
+import com.mapbox.geojson.Point;
+
 /**
  * Represents a point in the map.
  * @param lng Longitude of the point.
@@ -158,6 +160,10 @@ public record LngLat (Double lng, Double lat){
 
     public Node toNode() {
         return new Node(this);
+    }
+
+    public Point toPoint() {
+        return Point.fromLngLat(this.lng(), this.lat());
     }
 
 

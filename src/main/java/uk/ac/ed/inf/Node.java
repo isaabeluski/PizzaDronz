@@ -2,9 +2,6 @@ package uk.ac.ed.inf;
 
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.PriorityQueue;
 
 public class Node implements Comparable<Node>{
 
@@ -45,44 +42,25 @@ public class Node implements Comparable<Node>{
      * Gets all possible positions the drone can make from a node.
      * @return A list of nodes representing the possible next position.
      */
-    public ArrayList<Node> findLegalNeighbours() {
+    public ArrayList<Node> findNeighbours() {
         ArrayList<Node> legalNeighbours = new ArrayList<>();
         Compass[] values = Compass.class.getEnumConstants();
         for (Compass compassDirection : values) {
-            Node neighbourNode = this.point.nextPosition(compassDirection).toNode();
+            Node neighbourNode = this.nextPosition(compassDirection);
             neighbourNode.direction = compassDirection;
             legalNeighbours.add(neighbourNode);
         }
         return legalNeighbours;
     }
 
-    /**
-     * Checks whether a line between two points intersects with the noFlyZones.
-     * @param noFlyZones noFlyZones from REST server.
-     * @param finish The second point.
-     * @return True if the intersects.
-     */
-    public boolean intersects(Node finish, ArrayList<ArrayList<LngLat>> noFlyZones) {
-        // TODO: Move this to noFlyZone and do singleton.
-        Line2D.Double trajectory = new Line2D.Double();
-        LngLat start = this.getPoint();
-        LngLat destination = finish.getPoint();
-        trajectory.setLine(start.lng(), start.lat(), destination.lng(), destination.lat());
 
-        // Checks if the line between two points intersects with any of the noFlyZones.
-        //boolean intersects = false;
-        for (ArrayList<LngLat> noFlyZone : noFlyZones) {
-            for (int i = 0; i < noFlyZone.size() - 1; i++) {
-                LngLat a = noFlyZone.get(i);
-                LngLat b = noFlyZone.get(i + 1);
-                Line2D.Double noFlyZoneLine = new Line2D.Double();
-                noFlyZoneLine.setLine(a.lng(), a.lat(), b.lng(), b.lat());
-                if (trajectory.intersectsLine(noFlyZoneLine)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+
+    public Node nextPosition(Compass direction) {
+        return this.point.nextPosition(direction).toNode();
+    }
+
+    public boolean closeTo(Node node) {
+        return this.point.distanceTo(node.point) < 0.00015;
     }
 
 

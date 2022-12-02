@@ -20,12 +20,12 @@ import java.util.ArrayList;
 
         // ALL ORDERS OF A DAY
         Drone drone = new Drone(day.getFilteredOrders());
-        ArrayList<LngLat> tour = drone.doTour(restaurants);
-        System.out.println(tour);
+        ArrayList<LngLat> tour = drone.makeDeliveries(restaurants);
+        //System.out.println(tour);
 
         // ONE RESTAURANT
         //LngLat rest = new LngLat(restaurants[0].getLng(), restaurants[0].getLat());
-        //ArrayList<LngLat> path = Path.getPathPoints(Drone.APPLETON_TOWER.toNode(), rest.toNode());
+        //ArrayList<LngLat> path = new Path(restaurants[0]).pathToLngLat();
         //ArrayList<LngLat> path2 = Path.pathToStart(path);
         //ArrayList<LngLat> path = Path.totalPath(Drone.APPLETON_TOWER.toNode(), rest.toNode());
         GeoJson geoJson = new GeoJson();
