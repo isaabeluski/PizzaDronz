@@ -15,13 +15,15 @@ public class Drone {
     private ArrayList<Flightpath> flightpath = new ArrayList<>();
     public static final int FULL_BATTERY = 2000;
     public LngLat currentPos;
-    public static final LngLat APPLETON_TOWER = new LngLat(-3.186874, 55.944494);
+
+    // Starting point representing Appleton Tower in this case.
+    public static final LngLat STARTING_POINT = new LngLat(-3.186874, 55.944494);
 
 
     public Drone(DayOrder order) {
         this.battery = FULL_BATTERY;
-        this.start = APPLETON_TOWER;
-        this.currentPos = APPLETON_TOWER;
+        this.start = STARTING_POINT;
+        this.currentPos = STARTING_POINT;
         this.order = order.sortOrderByRestaurant();
     }
 
@@ -46,23 +48,32 @@ public class Drone {
 
 
     public ArrayList<LngLat> makeDeliveries(Restaurant[] restaurants) {
-        HashMap<Restaurant, ArrayList<LngLat>> allPaths = new Path(restaurants).getAllPaths();
+        HashMap<Restaurant, Path> allPaths = Path.allPaths(start, restaurants);
         ArrayList<LngLat> completeTour = new ArrayList<>();
 
         for (Order ord : order) {
 
             Restaurant correspondingRestaurant = ord.restaurantOrdered(restaurants);
             var path = allPaths.get(correspondingRestaurant);
+            var path1 = Path.toLngLatList(path.getGoToRestaurant());
+            var path2 = Path.toLngLatList(path.getGoToStart());
 
-            if (batteryCost(path) > battery) {
+            if (batteryCost(path1)*2 > battery) {
                 // Not enough battery so don't leave.
                 break;
             }
 
             if (ord.getOrderOutcome() == OrderOutcome.ValidButNotDelivered) {
-                completeTour.addAll(path);
+                completeTour.addAll(path1);
+                Path.getMoves(ord, path.getGoToRestaurant());
+                hover(ord);
+                battery -= batteryCost(path1);
+
+                completeTour.addAll(path2);
+                Path.getMoves(ord, path.getGoToStart());
+                hover(ord);
                 ord.setOrderOutcome(OrderOutcome.Delivered);
-                battery -= batteryCost(path);
+                battery -= batteryCost(path2);
 
             }
         }

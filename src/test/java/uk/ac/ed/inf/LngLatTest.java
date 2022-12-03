@@ -18,7 +18,7 @@ public class LngLatTest
     }
 
     public void testNotInCentralArea() {
-        LngLat point = new LngLat(-5,60);
+        LngLat point = new LngLat(-5.0,60.0);
         boolean test = point.inCentralArea();
         assertFalse(test);
 
@@ -75,7 +75,7 @@ public class LngLatTest
 
     public void testDistanceTo() {
         LngLat point = new LngLat(-3.1869,55.9445);
-        LngLat point2 = new LngLat(-5,60);
+        LngLat point2 = new LngLat(-5.0,60.0);
         double distance = point.distanceTo(point2);
         assertEquals(4.44234, Math.round(distance* 100000d) / 100000d);
 

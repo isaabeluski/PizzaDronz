@@ -52,6 +52,12 @@ public class DayOrder {
     private static boolean isNumeric(String str){
         return str != null && str.matches("[0-9]+");
     }
+
+    /**
+     * Checks whether the credit card used in an order is valid.
+     * @param order The order being checked.
+     * @return True if the credit card is valid, false otherwise.
+     */
     public boolean validCreditCard(Order order) {
         // Check cardExpiry
         SimpleDateFormat formatterExpiry = new SimpleDateFormat("MM/yy");
@@ -95,6 +101,11 @@ public class DayOrder {
 
     }
 
+    /**
+     * Checks if the credit card number is valid using the Luhn algorithm.
+     * @param cardNo The credit card number to be checked.
+     * @return True if the credit card number is valid, false otherwise.
+     */
     public boolean luhnAlgorithm(String cardNo) {
         int cardLength = cardNo.length();
 
@@ -123,6 +134,11 @@ public class DayOrder {
         return (totalSum % 10 == 0);
     }
 
+    /**
+     * Check if the credit card number is valid based on the valid IINs for Visa and Mastercard.
+     * @param order Order to check.
+     * @return True if the credit card IIN is valid.
+     */
     public boolean validIIN(Order order) {
         try {
             long firstDigit = Long.parseLong(order.getCreditCardNumber().substring(0, 1));

@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Represents an order.
@@ -50,12 +52,11 @@ public class Order {
 
     }
 
-    public Order[] getOrdersFromServer(URL serverBaseAddress, String date) {
-        String endpoint = "orders/";
-        String url = serverBaseAddress.toString() + endpoint + date;
-        System.out.println(url);
+    public static ArrayList<Order> getOrders(String date) {
+        String url =  "https://ilp-rest.azurewebsites.net/orders/" + date;
         try {
-            return new ObjectMapper().readValue(new URL(url), Order[].class);
+            Order[] orders = new ObjectMapper().readValue(new URL(url), Order[].class);
+            return new ArrayList<>(List.of(orders));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

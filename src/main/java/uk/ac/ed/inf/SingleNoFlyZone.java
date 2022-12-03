@@ -2,7 +2,10 @@ package uk.ac.ed.inf;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class NfzPoint {
+/**
+ * Represents a single no-fly zone.
+ */
+public class SingleNoFlyZone {
 
     @JsonProperty("name")
     private String name;

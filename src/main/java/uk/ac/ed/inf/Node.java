@@ -16,6 +16,9 @@ public class Node implements Comparable<Node>{
         this.point = point;
     }
 
+    /**
+     * Calculates the F score of the node.
+     */
     public void calculateF() {
         this.F = 0.9*this.G + this.H;
     }
@@ -39,7 +42,7 @@ public class Node implements Comparable<Node>{
     }
 
     /**
-     * Gets all possible positions the drone can make from a node.
+     * Gets all possible positions the drone can go to from the current node.
      * @return A list of nodes representing the possible next position.
      */
     public ArrayList<Node> findNeighbours() {
@@ -58,11 +61,6 @@ public class Node implements Comparable<Node>{
     public Node nextPosition(Compass direction) {
         return this.point.nextPosition(direction).toNode();
     }
-
-    public boolean closeTo(Node node) {
-        return this.point.distanceTo(node.point) < 0.00015;
-    }
-
 
 
     // GETTERS AND SETTERS
@@ -94,4 +92,5 @@ public class Node implements Comparable<Node>{
     public Compass getDirection() {
         return direction;
     }
+
 }

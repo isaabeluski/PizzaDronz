@@ -40,6 +40,19 @@ public class Restaurant implements Comparable<Restaurant> {
     Restaurant() {
     }
 
+    public static Restaurant[] getRestaurants() {
+        String url = "https://ilp-rest.azurewebsites.net/restaurants";
+        try {
+            return new ObjectMapper().readValue(new URL(url), Restaurant[].class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Saves the price of a menu item with its given name.
+     * @return A HashMap of menu items and their prices.
+     */
     public HashMap<String, Integer> menuCost() {
         HashMap<String, Integer> menu = new HashMap<>();
         for (Menu m : menus) {
@@ -84,15 +97,24 @@ public class Restaurant implements Comparable<Restaurant> {
     }
 
 
+    /**
+     * Compares restaurants with respect to how far away they are from the starting position.
+     * @param restaurant the object to be compared.
+     * @return 0 if the restaurants are the same distance away,-1 if the restaurant is closer, 1 if the restaurant is further away.
+     */
     @Override
     public int compareTo(Restaurant restaurant) {
         LngLat coord1 = new LngLat(this.getLng(), this.getLat());
         LngLat coord2 = new LngLat(restaurant.getLng(), restaurant.getLat());
-        double dist1 = Drone.APPLETON_TOWER.distanceTo(coord1);
-        double dist2 = Drone.APPLETON_TOWER.distanceTo(coord2);
+        double dist1 = Drone.STARTING_POINT.distanceTo(coord1);
+        double dist2 = Drone.STARTING_POINT.distanceTo(coord2);
         return Double.compare(dist1, dist2);
     }
 
+    /**
+     * Sorts restaurants with respect to how far away they are from the starting position.
+     * @param restaurants List of restaurants to be sorted.
+     */
     public static void sortRestaurants(ArrayList<Restaurant> restaurants) {
         Collections.sort(restaurants);
     }

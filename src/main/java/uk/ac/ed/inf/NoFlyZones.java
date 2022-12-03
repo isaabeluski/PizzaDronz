@@ -1,24 +1,22 @@
 package uk.ac.ed.inf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mapbox.geojson.*;
 
 import java.awt.geom.Line2D;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 
-import com.mapbox.turf.TurfJoins;
-
-
+/**
+ * Class that represents all no-fly-zones
+ */
 public class NoFlyZones {
 
     private final ArrayList<Line2D.Double> noFlyLines;
     private static NoFlyZones noFlyZones;
 
     private NoFlyZones() {
-        NfzPoint[] nfzPoints = getNoFlyPoints("noFlyZones");
+        SingleNoFlyZone[] nfzPoints = getNoFlyPoints();
         this.noFlyLines = getNoFlyLines(nfzPoints);
     }
 
@@ -29,19 +27,27 @@ public class NoFlyZones {
         return noFlyZones;
     }
 
-
-    public NfzPoint[] getNoFlyPoints(String endPoint) {
-        String url = "https://ilp-rest.azurewebsites.net/" + endPoint;
+    /**
+     * Gets the no-fly-zones from the REST server
+     * @return A list of the no-fly-zones.
+     */
+    private SingleNoFlyZone[] getNoFlyPoints() {
+        String url = "https://ilp-rest.azurewebsites.net/noFlyZones";
         try {
-            return new ObjectMapper().readValue(new URL(url), NfzPoint[].class);
+            return new ObjectMapper().readValue(new URL(url), SingleNoFlyZone[].class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public ArrayList<Line2D.Double> getNoFlyLines(NfzPoint[] noFlyPoints) {
+    /**
+     * Converts the no-fly-zones points into Line2D objects.
+     * @param noFlyPoints The no-fly-zones points.
+     * @return A list of the no-fly-zones lines.
+     */
+    private ArrayList<Line2D.Double> getNoFlyLines(SingleNoFlyZone[] noFlyPoints) {
         ArrayList<Line2D.Double> noFlyLines = new ArrayList<>();
-        for (NfzPoint noFlyZone : noFlyPoints) {
+        for (SingleNoFlyZone noFlyZone : noFlyPoints) {
             Double[][] coordinates = noFlyZone.getCoordinates();
             for (int i = 0; i < coordinates.length - 1; i++) {
                 Line2D.Double line = new Line2D.Double(
@@ -55,7 +61,13 @@ public class NoFlyZones {
         return noFlyLines;
     }
 
-    public boolean isIntersecting(Node start, Node destination) {
+    /**
+     * Checks if a line created by two points intersects with any of the no-fly-zones.
+     * @param start The start point of the line.
+     * @param destination The end point of the line.
+     * @return True if the line intersects with any of the no-fly-zones, false otherwise.
+     */
+    public boolean intersectsNoFlyZone(Node start, Node destination) {
         //build line
         var x = start.getPoint().toPoint();
         var y = destination.getPoint().toPoint();

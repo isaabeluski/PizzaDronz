@@ -12,9 +12,8 @@ import java.util.ArrayList;
     public static void main( String[] args ) throws MalformedURLException {
 
         // GETS ALL DATA FROM REST SERVER
-        Server server = new Server();
-        ArrayList<Order> orders = server.orders;
-        Restaurant[] restaurants = server.restaurants;
+        ArrayList<Order> orders = Order.getOrders("2023-01-01");
+        Restaurant[] restaurants = Restaurant.getRestaurants();
         DayOrder day = new DayOrder("2023-01-01", orders, restaurants);
 
 

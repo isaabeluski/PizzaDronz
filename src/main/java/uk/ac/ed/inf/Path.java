@@ -1,5 +1,6 @@
 package uk.ac.ed.inf;
 
+import java.awt.geom.Line2D;
 import java.util.*;
 
 /**
@@ -7,12 +8,13 @@ import java.util.*;
  */
 public class Path {
     private static final NoFlyZones noFlyZones = NoFlyZones.getInstance();
-    private static final ArrayList<Flightpath> flightpath = new ArrayList<>();
+    private static final CentralAreaClient centralArea = CentralAreaClient.getInstance();
+    private ArrayList<Node> goToRestaurant = new ArrayList<>();
+    private ArrayList<Node> goToStart = new ArrayList<>();
 
-    private HashMap<Restaurant, ArrayList<LngLat>> allPaths = new HashMap<>();
-
-    public Path(Restaurant[] restaurants) {
-        this.allPaths = allPaths(restaurants);
+    public Path(LngLat start, LngLat destination) {
+        this.goToRestaurant = getPathPoints(start.toNode(), destination.toNode());
+        this.goToStart = getPathPoints(destination.toNode(), start.toNode());
     }
 
     /**
@@ -20,16 +22,14 @@ public class Path {
      * @param destination Where the drone needs to end up 'close' to.
      * @return A list with all the points (representing the steps) the drone needs to take.
      */
-    public static ArrayList<LngLat> getPathPoints(Node start, Node destination) {
+    public ArrayList<Node> getPathPoints(Node start, Node destination) {
 
         PriorityQueue<Node> openList = new PriorityQueue<>();
         ArrayList<Node> closedList = new ArrayList<>();
-        HashMap<LngLat, Node> all = new HashMap<>();
 
         start.calculateHeuristic(destination);
         start.setG(0.0);
         start.calculateF();
-        all.put(start.getPoint(), start);
 
         openList.add(start);
 
@@ -38,11 +38,19 @@ public class Path {
             // Get node with lowest F
             Node currentNode = openList.peek();
             LngLat currentPoint = currentNode.getPoint();
+            int intersectionsCentralArea = 0;
 
             // Stop if we find the destination node
             if (currentPoint.closeTo(destination.getPoint())) {
+                ArrayList<Node> path = new ArrayList<>();
                 // Backtrack to get path
-                return backtrack(currentNode);
+                while (currentNode.getParent() != null) {
+                    LngLat parentPoint = currentNode.getParent().getPoint();
+                    path.add(currentNode.getParent());
+                    currentNode = currentNode.getParent();
+                };
+                Collections.reverse(path);
+                return path;
             }
 
             // Finds all neighbours of current node.
@@ -50,15 +58,14 @@ public class Path {
 
             for (Node neighbour : neighbours) {
 
-                // If the neighbour can be used
-                if (!noFlyZones.isIntersecting(currentNode,neighbour))  {
-                    LngLat neighbourPoint = neighbour.getPoint();
+                // Once we leave central area, we cannot enter it again
+                if (centralArea.intersectsCentralArea(currentNode, neighbour)) {
+                    intersectionsCentralArea++;
+                }
 
-                    if (all.containsKey(neighbourPoint)) { //as DS is not a graph, need to check if node is new or not.
-                        neighbour = all.get(neighbourPoint);
-                    } else {
-                        all.put(neighbourPoint, neighbour);
-                    }
+                // If the neighbour can be used
+                if (!noFlyZones.intersectsNoFlyZone(currentNode,neighbour) && intersectionsCentralArea < 2) {
+                    LngLat neighbourPoint = neighbour.getPoint();
 
                     // Calculates G
                     double distanceTravelled = currentNode.getG() + currentPoint.distanceTo(neighbourPoint);
@@ -93,83 +100,86 @@ public class Path {
             closedList.add(currentNode);
             openList.remove(currentNode);
         }
-        // No path could be found :(
         return null;
     }
 
-    private static ArrayList<LngLat> backtrack(Node currentNode) {
-        ArrayList<LngLat> path = new ArrayList<>();
-        path.add(currentNode.getPoint());
+    /**
+     * Reverses the path the drone will take.
+     * @param currentNode The node the drone is currently at.
+     * @return The path the drone should follow.
+     */
+    private ArrayList<Node> backtrack(Node currentNode) {
+        ArrayList<Node> path = new ArrayList<>();
+        path.add(currentNode);
 
         while (currentNode.getParent() != null) {
             LngLat parentPoint = currentNode.getParent().getPoint();
-            path.add(parentPoint);
-
-            /*
-            if (currentNode.getParent() != null) {
-                flightpath.add(new Flightpath(
-                        order.getOrderNo(),
-                        parentPoint.lng(),
-                        parentPoint.lat(),
-                        currentNode.getDirection().getAngle(),
-                        currentNode.getPoint().lng(),
-                        currentNode.getPoint().lat()));
-            }
-             */
+            path.add(currentNode.getParent());
 
             currentNode = currentNode.getParent();
         }
         Collections.reverse(path);
-        Collections.reverse(flightpath);
+        this.goToRestaurant = path;
         return path;
     }
 
-    public static ArrayList<LngLat> pathToStart(ArrayList<LngLat> path) {
-        Collections.reverse(path);
-        Collections.reverse(flightpath);
-        return path;
-    }
-
-    public static ArrayList<LngLat> totalPath(Node start, Node destination) {
-        ArrayList<LngLat> path = getPathPoints(start, destination);
-        ArrayList<LngLat> totalPath = new ArrayList<>(path);
-        Collections.reverse(path);
-        totalPath.addAll(path);
-        return totalPath;
-    }
-
-    public HashMap<Restaurant, ArrayList<LngLat>> allPaths(Restaurant[] restaurants) {
-        HashMap<Restaurant, ArrayList<LngLat>> paths = new HashMap<>();
+    /**
+     * Stores each path the drone should take for every restaurant.
+     * @param start The starting point of the drone.
+     * @param restaurants The list of restaurants the drone needs to visit.
+     * @return Hashmap with the path the drone should take for each restaurant.
+     */
+    public static HashMap<Restaurant, Path> allPaths(LngLat start, Restaurant[] restaurants) {
+        HashMap<Restaurant, Path> paths = new HashMap<>();
         for (Restaurant restaurant : restaurants) {
             LngLat restaurantLngLat = new LngLat(restaurant.getLng(), restaurant.getLat());
-            paths.put(restaurant, Path.totalPath(Drone.APPLETON_TOWER.toNode(), restaurantLngLat.toNode()));
+            paths.put(restaurant, new Path(start, restaurantLngLat));
         }
         return paths;
     }
 
-    public ArrayList<Flightpath> getMoves(Order order) {
+    /**
+     * Creates a Flighpath list representing the path the drone should take.
+     * @param order The order the drone is currently delivering.
+     * @param path The path that that needs to be followed to get to the destination.
+     * @return List of FlightPaths representing the path the drone should take.
+     */
+    public static ArrayList<Flightpath> getMoves(Order order, ArrayList<Node> path) {
         ArrayList<Flightpath> moves = new ArrayList<>();
-        this.path.forEach(node -> {
+        for (var node : path){
             if (node.getParent() != null) {
                 moves.add(new Flightpath(
                         order.getOrderNo(),
-                        node.getParent().getPoint().lng(),
-                        node.getParent().getPoint().lat(),
+                        node.getParent().getPoint(),
                         node.getDirection().getAngle(),
-                        node.getPoint().lng(),
-                        node.getPoint().lat()));
+                        node.getPoint()));
             }
-        });
+        }
         return moves;
     }
 
 
-    public static ArrayList<Flightpath> getFlightpath() {
-        return flightpath;
+    /**
+     * Converts a list of nodes into a list of LngLat points.
+     * @param path The path the drone needs to follow.
+     * @return List of LngLat points representing the path the drone needs to follow.
+     */
+    public static ArrayList<LngLat> toLngLatList(ArrayList<Node> path) {
+        ArrayList<LngLat> lngLatList = new ArrayList<>();
+        for (Node node : path) {
+            lngLatList.add(node.getPoint());
+        }
+        return lngLatList;
     }
 
-    public HashMap<Restaurant, ArrayList<LngLat>> getAllPaths() {
-        return allPaths;
+
+    // GETTERS
+    public ArrayList<Node> getGoToRestaurant() {
+        return this.goToRestaurant;
+    }
+
+    public ArrayList<Node> getGoToStart() {
+        return this.goToStart;
     }
 }
 
