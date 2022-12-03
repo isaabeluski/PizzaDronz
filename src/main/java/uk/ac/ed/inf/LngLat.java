@@ -22,7 +22,6 @@ public record LngLat (Double lng, Double lat){
      * lies outside the polygon; if odd, it belongs inside.
      * @return True if the point is in the Central Area.
      */
-    /*
     public boolean inCentralArea() {
 
         // Gets Polygon from the REST server.
@@ -33,7 +32,6 @@ public record LngLat (Double lng, Double lat){
 
         return TurfJoins.inside(point, centralAreaPolygon);
     }
-     */
 
 
 

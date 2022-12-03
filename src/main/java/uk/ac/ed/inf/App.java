@@ -23,12 +23,14 @@ import java.util.ArrayList;
         //System.out.println(tour);
 
         // ONE RESTAURANT
-        //LngLat rest = new LngLat(restaurants[0].getLng(), restaurants[0].getLat());
-        //ArrayList<LngLat> path = new Path(restaurants[0]).pathToLngLat();
-        //ArrayList<LngLat> path2 = Path.pathToStart(path);
-        //ArrayList<LngLat> path = Path.totalPath(Drone.APPLETON_TOWER.toNode(), rest.toNode());
-        GeoJson geoJson = new GeoJson();
-        geoJson.outputGeoJson("01", "01", "2023", tour);
+        //LngLat rest = new LngLat(restaurants[2].getLng(), restaurants[2].getLat());
+        //Path path = new Path(Drone.STARTING_POINT, rest);
+        //ArrayList<LngLat> path1 = Path.toLngLatList(path.getGoToRestaurant());
+        //System.out.println(path1);
+
+
+        //GeoJson geoJson = new GeoJson();
+        //geoJson.outputGeoJson("01", "01", "2023", tour);
         // Flightpath.outputJson("01", "01", "2023", drone.getFlightpath());
 
     }

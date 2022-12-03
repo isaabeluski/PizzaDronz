@@ -30,6 +30,8 @@ public class Path {
         start.calculateHeuristic(destination);
         start.setG(0.0);
         start.calculateF();
+        boolean isInCentral = start.getPoint().inCentralArea();
+        int count = 0;
 
         openList.add(start);
 
@@ -58,13 +60,17 @@ public class Path {
 
             for (Node neighbour : neighbours) {
 
-                // Once we leave central area, we cannot enter it again
-                if (centralArea.intersectsCentralArea(currentNode, neighbour)) {
-                    intersectionsCentralArea++;
+                // Makes sure it can only get out of central area once, or enter central area once.
+                if (neighbour.getPoint().inCentralArea() != isInCentral) {
+                    isInCentral = neighbour.getPoint().inCentralArea();
+                    count++;
+                    if (count > 1) {
+                        continue;
+                    }
                 }
 
                 // If the neighbour can be used
-                if (!noFlyZones.intersectsNoFlyZone(currentNode,neighbour) && intersectionsCentralArea < 2) {
+                if (!noFlyZones.intersectsNoFlyZone(currentNode,neighbour)) {
                     LngLat neighbourPoint = neighbour.getPoint();
 
                     // Calculates G
