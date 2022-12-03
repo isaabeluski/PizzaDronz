@@ -24,23 +24,28 @@ public class DayOrder {
         ArrayList<Order> filteredOrders = new ArrayList<>();
         for (Order loool : orders) {
             if (!validCreditCard(loool)) {
+                filteredOrders.add(loool);
                 continue;
             }
             if (loool.getOrderItems().length < 1 || loool.getOrderItems().length > 4) {
                 loool.setOrderOutcome(OrderOutcome.InvalidPizzaCount);
+                filteredOrders.add(loool);
                 continue;
             }
             if (loool.getCvv().length() != 3) {
                 loool.setOrderOutcome(OrderOutcome.InvalidCvv);
+                filteredOrders.add(loool);
                 continue;
             }
             if (!loool.arePizzasFromSameRestaurant(restaurants, loool.getOrderItems())) {
                 loool.setOrderOutcome(OrderOutcome.InvalidPizzaCombinationMultipleSuppliers);
+                filteredOrders.add(loool);
                 continue;
             }
             if (loool.getDeliveryCost(loool.restaurantOrdered(restaurants)) !=
                     loool.getPriceTotalInPence()) {
                 loool.setOrderOutcome(OrderOutcome.InvalidTotal);
+                filteredOrders.add(loool);
                 continue;
             }
             loool.setOrderOutcome(OrderOutcome.ValidButNotDelivered);

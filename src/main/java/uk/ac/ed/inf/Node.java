@@ -1,6 +1,7 @@
 package uk.ac.ed.inf;
 
 import java.awt.geom.Line2D;
+import java.time.Clock;
 import java.util.ArrayList;
 
 public class Node implements Comparable<Node>{
@@ -11,6 +12,7 @@ public class Node implements Comparable<Node>{
     private Double H = 0.0;
     private Node parent;
     private Compass direction;
+    private Clock clock;
 
     public Node(LngLat point)  {
         this.point = point;

@@ -29,8 +29,8 @@ import java.util.ArrayList;
         //System.out.println(path1);
 
 
-        //GeoJson geoJson = new GeoJson();
-        //geoJson.outputGeoJson("01", "01", "2023", tour);
+        GeoJson geoJson = new GeoJson();
+        geoJson.outputGeoJson("01", "01", "2023", tour);
         // Flightpath.outputJson("01", "01", "2023", drone.getFlightpath());
 
     }

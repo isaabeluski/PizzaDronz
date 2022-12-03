@@ -50,6 +50,7 @@ public class Drone {
     public ArrayList<LngLat> makeDeliveries(Restaurant[] restaurants) {
         HashMap<Restaurant, Path> allPaths = Path.allPaths(start, restaurants);
         ArrayList<LngLat> completeTour = new ArrayList<>();
+        ArrayList<Deliveries> deliveries = new ArrayList<>();
 
         for (Order ord : order) {
 
@@ -76,7 +77,16 @@ public class Drone {
                 battery -= batteryCost(path2);
 
             }
+
         }
+
+        for (Order ord : order) {
+            Deliveries delivery = new Deliveries(ord.getOrderNo(), ord.getOrderOutcome(), ord.getPriceTotalInPence());
+            deliveries.add(delivery);
+            System.out.println(deliveries.size());
+        }
+
+        Deliveries.outputJsonDeliveries("01", "01", "2023", deliveries);
 
 
         // TODO: Borrar esto después.

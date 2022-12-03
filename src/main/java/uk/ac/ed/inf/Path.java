@@ -1,6 +1,8 @@
 package uk.ac.ed.inf;
 
 import java.awt.geom.Line2D;
+import java.time.Clock;
+import java.time.Duration;
 import java.util.*;
 
 /**
@@ -23,6 +25,9 @@ public class Path {
      * @return A list with all the points (representing the steps) the drone needs to take.
      */
     public ArrayList<Node> getPathPoints(Node start, Node destination) {
+        Clock baseClock = Clock.systemUTC();
+        Duration duration = Duration.ofNanos(1);
+        System.out.println(baseClock.instant().getNano());
 
         PriorityQueue<Node> openList = new PriorityQueue<>();
         ArrayList<Node> closedList = new ArrayList<>();
@@ -49,6 +54,8 @@ public class Path {
                 while (currentNode.getParent() != null) {
                     LngLat parentPoint = currentNode.getParent().getPoint();
                     path.add(currentNode.getParent());
+                    Clock ticks = Clock.tick(baseClock, duration);
+                    System.out.println(ticks.instant().getNano());
                     currentNode = currentNode.getParent();
                 };
                 Collections.reverse(path);
