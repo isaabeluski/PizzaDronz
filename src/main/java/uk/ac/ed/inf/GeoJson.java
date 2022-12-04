@@ -22,7 +22,7 @@ public class GeoJson {
     public void outputGeoJson(String day, String month, String year, ArrayList<LngLat> path) {
         try {
 
-            FileWriter file = new FileWriter("drone-" + year + "-" + month + "-" + day + ".geojson");
+            FileWriter file = new FileWriter("resultfiles/drone-" + year + "-" + month + "-" + day + ".geojson");
             file.write(lnglatToFC(path).toJson());
             file.close();
 

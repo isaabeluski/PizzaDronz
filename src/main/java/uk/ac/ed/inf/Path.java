@@ -10,6 +10,7 @@ import java.util.*;
  */
 public class Path {
     private static final NoFlyZones noFlyZones = NoFlyZones.getInstance();
+    private static final CentralAreaClient centralArea = CentralAreaClient.getInstance();
     public static ArrayList<Node> pathNode = new ArrayList<>();
 
     /**
@@ -26,8 +27,7 @@ public class Path {
         start.calculateHeuristic(destination);
         start.setG(0.0);
         start.calculateF();
-        boolean isInCentral = start.getPoint().inCentralArea();
-        int count = 0;
+        int intersectionsCentralArea = 0;
 
         openList.add(start);
 
@@ -65,10 +65,9 @@ public class Path {
             for (Node neighbour : neighbours) {
 
                 // Makes sure it can only get out of central area once, or enter central area once.
-                if (neighbour.getPoint().inCentralArea() != isInCentral) {
-                    isInCentral = neighbour.getPoint().inCentralArea();
-                    count++;
-                    if (count > 1) {
+                if (centralArea.intersectsCentralArea(currentNode, neighbour)) {
+                    intersectionsCentralArea++;
+                    if (intersectionsCentralArea > 1) {
                         continue;
                     }
                 }

@@ -34,7 +34,7 @@ public class Flightpath {
     public static void outputJsonFlightpath(String day, String month, String year, ArrayList<Flightpath> flightpaths) {
         try {
 
-            FileWriter file = new FileWriter("flightpath-" + year + "-" + month + "-" + day + ".json");
+            FileWriter file = new FileWriter("resultfiles/flightpath-" + year + "-" + month + "-" + day + ".json");
             JSONArray list = new JSONArray();
             for (Flightpath flightpath : flightpaths) {
                 JSONObject obj = new JSONObject();

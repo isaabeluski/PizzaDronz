@@ -25,7 +25,7 @@ public class Deliveries {
     public static void outputJsonDeliveries(String day, String month, String year, ArrayList<Deliveries> deliveries) {
         try {
 
-            FileWriter file = new FileWriter("deliveries-" + year + "-" + month + "-" + day + ".json");
+            FileWriter file = new FileWriter("resultfiles/deliveries-" + year + "-" + month + "-" + day + ".json");
             JSONArray list = new JSONArray();
             for (Deliveries delivery : deliveries) {
                 JSONObject obj = new JSONObject();

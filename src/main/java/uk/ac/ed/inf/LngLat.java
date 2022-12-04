@@ -15,26 +15,6 @@ public record LngLat (Double lng, Double lat){
     private static final double DISTANCE_TOLERANCE = 0.00015;
 
 
-
-    /**
-     * Checks if a point is within the Central Area. It counts how many times a 'ray' coming from the
-     * point being tested, intersects the edges of the polygon. If this number is even, the point
-     * lies outside the polygon; if odd, it belongs inside.
-     * @return True if the point is in the Central Area.
-     */
-    public boolean inCentralArea() {
-
-        // Gets Polygon from the REST server.
-        Polygon centralAreaPolygon = CentralAreaClient.getCentralCoordinates();
-
-        // Point to be tested
-        Point point = this.toPoint();
-
-        return TurfJoins.inside(point, centralAreaPolygon);
-    }
-
-
-
     /**
      * Calculates the distance between two points.
      * @param point Calculates the distance to this point (LngLat object).
