@@ -70,7 +70,7 @@ public class Drone {
             var pathToRestaurant = new Path(start, restaurantPos);
             var pathToRestaurantList = pathToRestaurant.getPathInLngLat();
             var returnPath = new Path(restaurantPos, start);
-            var returnPathList = pathToRestaurant.getPathInLngLat();
+            var returnPathList = returnPath.getPathInLngLat();
 
             // If there is not enough battery, do not take off.
             if (batteryCost(pathToRestaurantList, returnPathList) > battery) {
@@ -99,9 +99,9 @@ public class Drone {
             deliveries.add(delivery);
         }
 
-        Deliveries.outputJsonDeliveries("01", "01", "2023", deliveries);
-        Flightpath.outputJsonFlightpath("01", "01", "2023", flightpath);
-        outputGeoJson("01", "01", "2023", completeTour);
+        Deliveries.outputJsonDeliveries(deliveries);
+        Flightpath.outputJsonFlightpath(flightpath);
+        outputGeoJson(completeTour);
 
         // TODO: Borrar esto después.
         System.out.println("Number of moves: " + flightpath.size());
@@ -141,10 +141,10 @@ public class Drone {
      * @param year  The year.
      * @param path  The path the drone takes.
      */
-    public void outputGeoJson(String day, String month, String year, ArrayList<LngLat> path) {
+    public void outputGeoJson(ArrayList<LngLat> path) {
         try {
-
-            FileWriter file = new FileWriter("resultfiles/drone-" + year + "-" + month + "-" + day + ".geojson");
+            String date = Server.getInstance().getDate();
+            FileWriter file = new FileWriter("resultfiles/drone-" + date + ".geojson");
             file.write(lnglatToFC(path).toJson());
             file.close();
 

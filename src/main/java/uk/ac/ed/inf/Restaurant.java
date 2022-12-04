@@ -27,6 +27,8 @@ public class Restaurant implements Comparable<Restaurant> {
     @JsonProperty("menu")
     private Menu[] menus;
 
+    private static final String endPoint = "restaurants";
+
     /**
      * Default constructor.
      */
@@ -41,7 +43,8 @@ public class Restaurant implements Comparable<Restaurant> {
     }
 
     public static Restaurant[] getRestaurants() {
-        String url = "https://ilp-rest.azurewebsites.net/restaurants";
+        String baseUrl = Server.getInstance().getBaseUrl();
+        String url = baseUrl + endPoint;
         try {
             return new ObjectMapper().readValue(new URL(url), Restaurant[].class);
         } catch (IOException e) {

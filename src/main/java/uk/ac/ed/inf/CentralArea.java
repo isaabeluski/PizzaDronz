@@ -53,6 +53,8 @@ public class CentralArea {
     private final ArrayList<Line2D.Double> centralAreaLines;
     private static CentralArea centralArea;
 
+    private static final String endPoint = "centralArea";
+
     private CentralArea() {
         CentralAreaPoint[] centralAreaPoints = centralCoordinates();
         this.centralAreaLines = centralLines(centralAreaPoints);
@@ -75,9 +77,12 @@ public class CentralArea {
      */
     private CentralAreaPoint[] centralCoordinates() {
         try {
-            URL url = new URL("https://ilp-rest.azurewebsites.net/centralArea");
+            String baseUrl = Server.getInstance().baseUrl;
 
-            return new ObjectMapper().readValue(url, CentralAreaPoint[].class);
+            System.out.println(baseUrl + endPoint);
+            String url = baseUrl + endPoint;
+
+            return new ObjectMapper().readValue(new URL (url), CentralAreaPoint[].class);
 
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -33,10 +33,10 @@ public class Deliveries {
      * @param year The year of the delivery.
      * @param deliveries The list of deliveries to be outputted in the file.
      */
-    public static void outputJsonDeliveries(String day, String month, String year, ArrayList<Deliveries> deliveries) {
+    public static void outputJsonDeliveries(ArrayList<Deliveries> deliveries) {
         try {
-
-            FileWriter file = new FileWriter("resultfiles/deliveries-" + year + "-" + month + "-" + day + ".json");
+            String date = Server.getInstance().getDate();
+            FileWriter file = new FileWriter("resultfiles/deliveries-" + date + ".json");
             JSONArray list = new JSONArray();
             for (Deliveries delivery : deliveries) {
                 JSONObject obj = new JSONObject();

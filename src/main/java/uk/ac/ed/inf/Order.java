@@ -31,6 +31,8 @@ public class Order {
     @JsonProperty("orderItems")
     private String[] orderItems;
     private OrderOutcome orderOutcome;
+    private static final String endPoint = "orders";
+
 
     /**
      * Default constructor.
@@ -53,12 +55,15 @@ public class Order {
 
     /**
      * Gets orders from REST server.
-     * @param date The date of the orders.
      * @return A list of all orders for a specific date.
      */
-    public static ArrayList<Order> getOrders(String date) {
-        String url =  "https://ilp-rest.azurewebsites.net/orders/" + date;
+    public static ArrayList<Order> getOrders() {
         try {
+            String baseUrl = Server.getInstance().baseUrl;
+            String date = Server.getInstance().getDate();
+
+            String url = baseUrl + endPoint + "/" + date;
+
             Order[] orders = new ObjectMapper().readValue(new URL(url), Order[].class);
             return new ArrayList<>(List.of(orders));
         } catch (IOException e) {

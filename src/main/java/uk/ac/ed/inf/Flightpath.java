@@ -46,10 +46,10 @@ public class Flightpath {
      * @param year The year of the delivery.
      * @param flightpaths The list of flightpaths to be outputted in the file.
      */
-    public static void outputJsonFlightpath(String day, String month, String year, ArrayList<Flightpath> flightpaths) {
+    public static void outputJsonFlightpath(ArrayList<Flightpath> flightpaths) {
         try {
-
-            FileWriter file = new FileWriter("resultfiles/flightpath-" + year + "-" + month + "-" + day + ".json");
+            String date = Server.getInstance().getDate();
+            FileWriter file = new FileWriter("resultfiles/flightpath-" + date + ".json");
             JSONArray list = new JSONArray();
             for (Flightpath flightpath : flightpaths) {
                 JSONObject obj = new JSONObject();

@@ -30,6 +30,8 @@ public class NoFlyZones {
     private final ArrayList<Line2D.Double> noFlyLines;
     private static NoFlyZones noFlyZones;
 
+    private static final String endPoint = "noFlyZones";
+
     private NoFlyZones() {
         SingleNoFlyZone[] nfzPoints = getNoFlyPoints();
         this.noFlyLines = getNoFlyLines(nfzPoints);
@@ -51,7 +53,10 @@ public class NoFlyZones {
      * @return A list of the no-fly-zones.
      */
     private SingleNoFlyZone[] getNoFlyPoints() {
-        String url = "https://ilp-rest.azurewebsites.net/noFlyZones";
+        String baseUrl = Server.getInstance().getBaseUrl();
+
+        String url = baseUrl + endPoint;
+
         try {
             return new ObjectMapper().readValue(new URL(url), SingleNoFlyZone[].class);
         } catch (IOException e) {

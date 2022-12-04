@@ -2,6 +2,7 @@ package uk.ac.ed.inf;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Hello world!
@@ -9,28 +10,27 @@ import java.util.ArrayList;
  */
  public class App
 {
-    public static void main( String[] args ) throws MalformedURLException {
+    public static void main( String[] args ) {
 
         // GETS ALL DATA FROM REST SERVER
-        ArrayList<Order> orders = Order.getOrders("2023-01-01");
+        String date = "2023-01-01"; // args[0];
+        String baseURL = "https://ilp-rest.azurewebsites.net"; // args[1];
+        String random = "caca"; //args[2];
+
+        // Setup server information from args
+        Server server = Server.getInstance();
+        server.setBaseUrl(baseURL);
+        server.setDate(date);
+
+        ArrayList<Order> orders = Order.getOrders();
         Restaurant[] restaurants = Restaurant.getRestaurants();
-        DayOrder day = new DayOrder("2023-01-01", orders, restaurants);
+        DayOrder day = new DayOrder(date, orders, restaurants);
 
 
         // ALL ORDERS OF A DAY
         Drone drone = new Drone(day.getFilteredOrders());
-        ArrayList<LngLat> tour = drone.makeDeliveries(restaurants);
+        drone.makeDeliveries(restaurants);
         //System.out.println(tour);
-
-        // ONE RESTAURANT
-        //LngLat rest = new LngLat(restaurants[2].getLng(), restaurants[2].getLat());
-        //Path path = new Path(Drone.STARTING_POINT, rest);
-        //System.out.println(Path.getMoves(orders.get(0), path.getGoToRestaurant()));
-        //ArrayList<LngLat> path1 = Path.toLngLatList(path.getGoToRestaurant());
-        //System.out.println(path1);
-
-        // geoJson.outputGeoJson("01", "01", "2023", tour);
-        // Flightpath.outputJson("01", "01", "2023", drone.getFlightpath());
 
     }
 }
