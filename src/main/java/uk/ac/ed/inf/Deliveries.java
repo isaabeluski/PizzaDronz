@@ -10,11 +10,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * Represents the deliveries made in a day and outputs a delivery file.
+ */
+
 public class Deliveries {
 
-    String orderNo;
-    String orderOutcome;
-    int costInPence;
+    private final String orderNo;
+    private final String orderOutcome;
+    private final int costInPence;
 
     public Deliveries(String orderNo, OrderOutcome orderOutcome, int costInPence) {
         this.orderNo = orderNo;
@@ -22,6 +26,13 @@ public class Deliveries {
         this.costInPence = costInPence;
     }
 
+    /**
+     * Outputs the delivery file.
+     * @param day The day of the delivery.
+     * @param month The month of the delivery.
+     * @param year The year of the delivery.
+     * @param deliveries The list of deliveries to be outputted in the file.
+     */
     public static void outputJsonDeliveries(String day, String month, String year, ArrayList<Deliveries> deliveries) {
         try {
 

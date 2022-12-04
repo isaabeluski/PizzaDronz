@@ -22,34 +22,34 @@ public class DayOrder {
      */
     public DayOrder getFilteredOrders() {
         ArrayList<Order> filteredOrders = new ArrayList<>();
-        for (Order loool : orders) {
-            if (!validCreditCard(loool)) {
-                filteredOrders.add(loool);
+        for (Order ord : orders) {
+            if (!validCreditCard(ord)) {
+                filteredOrders.add(ord);
                 continue;
             }
-            if (loool.getOrderItems().length < 1 || loool.getOrderItems().length > 4) {
-                loool.setOrderOutcome(OrderOutcome.InvalidPizzaCount);
-                filteredOrders.add(loool);
+            if (ord.getOrderItems().length < 1 || ord.getOrderItems().length > 4) {
+                ord.setOrderOutcome(OrderOutcome.InvalidPizzaCount);
+                filteredOrders.add(ord);
                 continue;
             }
-            if (loool.getCvv().length() != 3) {
-                loool.setOrderOutcome(OrderOutcome.InvalidCvv);
-                filteredOrders.add(loool);
+            if (ord.getCvv().length() != 3) {
+                ord.setOrderOutcome(OrderOutcome.InvalidCvv);
+                filteredOrders.add(ord);
                 continue;
             }
-            if (!loool.arePizzasFromSameRestaurant(restaurants, loool.getOrderItems())) {
-                loool.setOrderOutcome(OrderOutcome.InvalidPizzaCombinationMultipleSuppliers);
-                filteredOrders.add(loool);
+            if (!ord.arePizzasFromSameRestaurant(restaurants, ord.getOrderItems())) {
+                ord.setOrderOutcome(OrderOutcome.InvalidPizzaCombinationMultipleSuppliers);
+                filteredOrders.add(ord);
                 continue;
             }
-            if (loool.getDeliveryCost(loool.restaurantOrdered(restaurants)) !=
-                    loool.getPriceTotalInPence()) {
-                loool.setOrderOutcome(OrderOutcome.InvalidTotal);
-                filteredOrders.add(loool);
+            if (ord.getDeliveryCost(ord.restaurantOrdered(restaurants)) !=
+                    ord.getPriceTotalInPence()) {
+                ord.setOrderOutcome(OrderOutcome.InvalidTotal);
+                filteredOrders.add(ord);
                 continue;
             }
-            loool.setOrderOutcome(OrderOutcome.ValidButNotDelivered);
-            filteredOrders.add(loool);
+            ord.setOrderOutcome(OrderOutcome.ValidButNotDelivered);
+            filteredOrders.add(ord);
         }
         return new DayOrder(this.date, filteredOrders, this.restaurants);
     }

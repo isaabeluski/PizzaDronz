@@ -53,10 +53,18 @@ public record LngLat (Double lng, Double lat){
         return new LngLat(newLng, newLat);
     }
 
+    /**
+     * Converts a LngLat object to a Node object.
+     * @return The corresponding Node object.
+     */
     public Node toNode() {
         return new Node(this);
     }
 
+    /**
+     * Converts a LngLat object to a Point object.
+     * @return The corresponding Point object.
+     */
     public Point toPoint() {
         return Point.fromLngLat(this.lng(), this.lat());
     }

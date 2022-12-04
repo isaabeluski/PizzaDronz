@@ -13,14 +13,22 @@ import java.util.ArrayList;
 
 public class Flightpath {
 
-    String orderNo;
-    Double fromLongitude;
-    Double fromLatitude;
-    Double angle;
-    Double toLongitude;
-    Double toLatitude;
-    long ticksSinceStartOfCalculation;
+    private final String orderNo;
+    private final Double fromLongitude;
+    private final Double fromLatitude;
+    private final Double angle;
+    private final Double toLongitude;
+    private final Double toLatitude;
+    private final long ticksSinceStartOfCalculation;
 
+    /**
+     * Constructor for Flightpath.
+     * @param orderNo The order number.
+     * @param from The starting point of the drone's move.
+     * @param angle The angle the drone's move takes.
+     * @param to The end point of the drone's move.
+     * @param ticksSinceStartOfCalculation The number of ticks since the start of the calculation.
+     */
     public Flightpath(String orderNo, LngLat from, Double angle, LngLat to, long ticksSinceStartOfCalculation) {
         this.orderNo = orderNo;
         this.fromLongitude = from.lng();
@@ -31,6 +39,13 @@ public class Flightpath {
         this.ticksSinceStartOfCalculation = ticksSinceStartOfCalculation;
     }
 
+    /**
+     * Outputs the flightpath file.
+     * @param day The day of the delivery.
+     * @param month The month of the delivery.
+     * @param year The year of the delivery.
+     * @param flightpaths The list of flightpaths to be outputted in the file.
+     */
     public static void outputJsonFlightpath(String day, String month, String year, ArrayList<Flightpath> flightpaths) {
         try {
 

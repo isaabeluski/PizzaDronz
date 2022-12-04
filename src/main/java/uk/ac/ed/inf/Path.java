@@ -1,8 +1,5 @@
 package uk.ac.ed.inf;
 
-import java.awt.geom.Line2D;
-import java.time.Clock;
-import java.time.Duration;
 import java.util.*;
 
 /**
@@ -10,16 +7,20 @@ import java.util.*;
  */
 public class Path {
     private static final NoFlyZones noFlyZones = NoFlyZones.getInstance();
-    private static final CentralAreaClient centralArea = CentralAreaClient.getInstance();
-    public static ArrayList<Node> pathNode = new ArrayList<>();
+    private static final CentralArea centralArea = CentralArea.getInstance();
+    private final ArrayList<Node> pathInNodes = new ArrayList<>();
+    private final ArrayList<LngLat> pathInLngLat = new ArrayList<>();
+
+    public Path(LngLat start, LngLat destination) {
+        calculatePath(start, destination);
+    }
 
     /**
-     * Function that calculates the path the drone will need to make, using A* Algorithm.
-     *
+     * Calculates the shortest path the drone can take using the A* Algorithm.
      * @param destination Where the drone needs to end up 'close' to.
-     * @return A list with all the points (representing the steps) the drone needs to take.
+     * @return A list with all the points of the path the drone should go through to get to the destination.
      */
-    public static ArrayList<Node> getPathNodes(Node start, Node destination) {
+    public static Node performAStar(Node start, Node destination) {
 
         PriorityQueue<Node> openList = new PriorityQueue<>();
         ArrayList<Node> closedList = new ArrayList<>();
@@ -33,30 +34,16 @@ public class Path {
 
         while (!openList.isEmpty()) {
 
-            // Get node with lowest F
+            // Gets node with lowest F score.
             Node currentNode = openList.peek();
-            long endTime = System.nanoTime();
-            currentNode.setTicks(endTime - Drone.startTime);
             LngLat currentPoint = currentNode.getPoint();
 
-            // Stop if we find the destination node
+            // Sets the time it took to calculate the move.
+            currentNode.setTicks(System.nanoTime() - Drone.startTime);
+
+            // Stop if current node is 'close to' the destination point.
             if (currentPoint.closeTo(destination.getPoint())) {
-                ArrayList<Node> path = new ArrayList<>();
-                // Backtrack to get path
-                while (currentNode.getParent() != null) {
-                    LngLat parentPoint = currentNode.getParent().getPoint();
-                    path.add(currentNode.getParent());
-                    currentNode = currentNode.getParent();
-                }
-                Collections.reverse(path);
-
-                currentNode.setParent(currentNode);
-                Node hover = new Node(currentPoint);
-                hover.setParent(currentNode);
-                path.add(hover);
-
-                pathNode = path;
-                return pathNode;
+                return currentNode;
             }
 
             // Finds all neighbours of current node.
@@ -109,40 +96,54 @@ public class Path {
             closedList.add(currentNode);
             openList.remove(currentNode);
         }
+        // No path could be found - add exception.
         return null;
     }
 
     /**
-     * Reverses the path the drone will take.
-     *
-     * @param currentNode The node the drone is currently at.
-     * @return The path the drone should follow.
+     * Calculates the path the drone will take.
+     * @param start Where the drone starts.
+     * @param destination Where the drone needs to end up 'close' to.
      */
-    private ArrayList<Node> backtrack(Node currentNode) {
+    private void calculatePath(LngLat start, LngLat destination) {
+
+        // Get nodes
+        Node startNode = start.toNode();
+        Node destinationNode = destination.toNode();
+
+        // Perform A*
+        Node node = performAStar(startNode, destinationNode);
+
+        // Backtrack to get path
         ArrayList<Node> path = new ArrayList<>();
-        path.add(currentNode);
+        path.add(node);
 
-        while (currentNode.getParent() != null) {
-            LngLat parentPoint = currentNode.getParent().getPoint();
-            path.add(currentNode.getParent());
+        while (node.getParent() != null) {
+            LngLat parentPoint = node.getParent().getPoint();
+            path.add(node.getParent());
 
-            currentNode = currentNode.getParent();
+            node = node.getParent();
         }
         Collections.reverse(path);
-        return path;
+
+        pathInNodes.addAll(path);
+        pathInLngLat.addAll(pathToLngLat(path));
+
+        // Add hover movement
+        node.setParent(node);
+        Node hover = new Node(node.getPoint());
+        path.add(hover);
+
     }
 
-
     /**
-     * Creates a Flighpath list representing the path the drone should take.
-     *
+     * Creates a Flightpath list representing the moves the drone takes in a trip.
      * @param order The order the drone is currently delivering.
-     * @param path  The path that that needs to be followed to get to the destination.
-     * @return List of FlightPaths representing the path the drone should take.
+     * @return List of FlightPaths representing the moves the drone should take.
      */
-    public static ArrayList<Flightpath> getMoves(Order order, ArrayList<Node> path) {
+    public ArrayList<Flightpath> getMoves(Order order) {
         ArrayList<Flightpath> moves = new ArrayList<>();
-        for (var node : path) {
+        for (var node : pathInNodes) {
             if (node.getParent() != null) {
                 moves.add(new Flightpath(
                         order.getOrderNo(),
@@ -160,13 +161,16 @@ public class Path {
      * Converts a list of nodes into a list of LngLat points.
      * @return List of LngLat points representing the path the drone needs to follow.
      */
-    public static ArrayList<LngLat> getPathPoints(LngLat start, LngLat destination) {
-        ArrayList<Node> path = Path.getPathNodes(start.toNode(), destination.toNode());
+    private ArrayList<LngLat> pathToLngLat(ArrayList<Node> path) {
         ArrayList<LngLat> lngLatList = new ArrayList<>();
         for (Node node : path) {
             lngLatList.add(node.getPoint());
         }
         return lngLatList;
+    }
+
+    public ArrayList<LngLat> getPathInLngLat() {
+        return pathInLngLat;
     }
 
 }

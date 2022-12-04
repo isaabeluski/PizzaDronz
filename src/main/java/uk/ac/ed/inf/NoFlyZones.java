@@ -1,5 +1,6 @@
 package uk.ac.ed.inf;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.awt.geom.Line2D;
@@ -8,9 +9,23 @@ import java.net.URL;
 import java.util.ArrayList;
 
 /**
- * Class that represents all no-fly-zones
+ * Singleton used to retrieve NoFlyZones from REST server.
  */
 public class NoFlyZones {
+
+    private static class SingleNoFlyZone {
+
+        @JsonProperty("name")
+        private String name;
+
+        @JsonProperty("coordinates")
+        private Double[][] coordinates;
+
+        public Double[][] getCoordinates() {
+            return coordinates;
+        }
+
+    }
 
     private final ArrayList<Line2D.Double> noFlyLines;
     private static NoFlyZones noFlyZones;
@@ -20,6 +35,10 @@ public class NoFlyZones {
         this.noFlyLines = getNoFlyLines(nfzPoints);
     }
 
+    /**
+     * Gets the singleton instance of NoFlyZones.
+     * @return The singleton instance of NoFlyZones.
+     */
     public static NoFlyZones getInstance() {
         if (noFlyZones == null) {
             noFlyZones = new NoFlyZones();

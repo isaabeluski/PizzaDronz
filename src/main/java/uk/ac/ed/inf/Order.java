@@ -49,9 +49,13 @@ public class Order {
     }
 
     Order() {
-
     }
 
+    /**
+     * Gets orders from REST server.
+     * @param date The date of the orders.
+     * @return A list of all orders for a specific date.
+     */
     public static ArrayList<Order> getOrders(String date) {
         String url =  "https://ilp-rest.azurewebsites.net/orders/" + date;
         try {
@@ -113,6 +117,8 @@ public class Order {
         return cost;
     }
 
+
+    // GETTERS AND SETTERS.
     public String[] getOrderItems() {
         return orderItems;
     }

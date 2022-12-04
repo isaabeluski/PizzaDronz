@@ -1,7 +1,5 @@
 package uk.ac.ed.inf;
 
-import java.awt.geom.Line2D;
-import java.time.Clock;
 import java.util.ArrayList;
 
 public class Node implements Comparable<Node>{
@@ -11,20 +9,16 @@ public class Node implements Comparable<Node>{
     private Double G = 0.0;
     private Double H = 0.0;
     private Node parent;
-    //private Compass direction = null;
     private long ticks;
 
     private Double angle = null;
 
+    /**
+     * Constructor.
+     * @param point The LngLat point of the node.
+     */
     public Node(LngLat point)  {
         this.point = point;
-    }
-
-    /**
-     * Calculates the F score of the node.
-     */
-    public void calculateF() {
-        this.F = 0.9*this.G + this.H;
     }
 
     /**
@@ -35,6 +29,13 @@ public class Node implements Comparable<Node>{
     @Override
     public int compareTo(Node node) {
         return Double.compare(this.F, node.F);
+    }
+
+    /**
+     * Calculates the F score of the node.
+     */
+    public void calculateF() {
+        this.F = 0.9*this.G + this.H;
     }
 
     /**
@@ -61,13 +62,17 @@ public class Node implements Comparable<Node>{
     }
 
 
-
+    /**
+     * Calculates the next position of the drone with nodes.
+     * @param direction A compass direction.
+     * @return A node in the next position.
+     */
     public Node nextPosition(Compass direction) {
         return this.point.nextPosition(direction).toNode();
     }
 
 
-    // GETTERS AND SETTERS
+    // GETTERS
 
     public Double getG() {
         return G;
@@ -77,16 +82,25 @@ public class Node implements Comparable<Node>{
         return H;
     }
 
-    public void setG(Double g) {
-        G = g;
-    }
-
     public Node getParent() {
         return parent;
     }
 
     public LngLat getPoint() {
         return point;
+    }
+
+    public long getTicks() {
+        return ticks;
+    }
+
+    public Double getAngle() {
+        return angle;
+    }
+
+    // SETTERS
+    public void setG(Double g) {
+        G = g;
     }
 
     public void setParent(Node parent) {
@@ -98,11 +112,4 @@ public class Node implements Comparable<Node>{
         this.ticks = ticks;
     }
 
-    public long getTicks() {
-        return ticks;
-    }
-
-    public Double getAngle() {
-        return angle;
-    }
 }

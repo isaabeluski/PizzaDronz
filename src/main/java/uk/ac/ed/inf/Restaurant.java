@@ -61,22 +61,6 @@ public class Restaurant implements Comparable<Restaurant> {
         return menu;
     }
 
-
-    /**
-     * Gets restaurants from the REST server
-     * @param serverBaseAddress The URL
-     * @return List of restaurants
-     */
-    public static Restaurant[] getRestaurantFromRestServer(URL serverBaseAddress) {
-        String endpoint = "restaurants";
-        String url = serverBaseAddress.toString() + endpoint;
-        try {
-            return new ObjectMapper().readValue(new URL(url), Restaurant[].class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     /**
      * Gets the menu of a restaurant
      * @return The menu, which is a list of dishes with their respective prices.
@@ -100,7 +84,8 @@ public class Restaurant implements Comparable<Restaurant> {
     /**
      * Compares restaurants with respect to how far away they are from the starting position.
      * @param restaurant the object to be compared.
-     * @return 0 if the restaurants are the same distance away,-1 if the restaurant is closer, 1 if the restaurant is further away.
+     * @return 0 if the restaurants are the same distance away,-1 if the restaurant is closer,
+     * 1 if the restaurant is further away.
      */
     @Override
     public int compareTo(Restaurant restaurant) {
