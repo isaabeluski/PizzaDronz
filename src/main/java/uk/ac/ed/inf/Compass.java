@@ -22,13 +22,13 @@ public enum Compass {
     WEST_NORTH_WEST(157.5),
     NORTH_NORTH_WEST(112.5);
 
-    private final double angle;
+    private final Double angle;
 
     /**
      * Constructor.
      * @param angle Angle the drone will move towards.
      */
-    Compass(double angle) {
+    Compass(Double angle) {
         this.angle = angle;
     }
 
@@ -36,7 +36,7 @@ public enum Compass {
      * Gets the angle of a direction.
      * @return Angle in degrees.
      */
-    public double getAngle() {
+    public Double getAngle() {
         return angle;
     }
 

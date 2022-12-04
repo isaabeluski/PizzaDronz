@@ -25,6 +25,7 @@ import java.util.ArrayList;
         // ONE RESTAURANT
         //LngLat rest = new LngLat(restaurants[2].getLng(), restaurants[2].getLat());
         //Path path = new Path(Drone.STARTING_POINT, rest);
+        //System.out.println(Path.getMoves(orders.get(0), path.getGoToRestaurant()));
         //ArrayList<LngLat> path1 = Path.toLngLatList(path.getGoToRestaurant());
         //System.out.println(path1);
 

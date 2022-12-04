@@ -11,8 +11,10 @@ public class Node implements Comparable<Node>{
     private Double G = 0.0;
     private Double H = 0.0;
     private Node parent;
-    private Compass direction;
-    private Clock clock;
+    //private Compass direction = null;
+    private long ticks;
+
+    private Double angle = null;
 
     public Node(LngLat point)  {
         this.point = point;
@@ -52,7 +54,7 @@ public class Node implements Comparable<Node>{
         Compass[] values = Compass.class.getEnumConstants();
         for (Compass compassDirection : values) {
             Node neighbourNode = this.nextPosition(compassDirection);
-            neighbourNode.direction = compassDirection;
+            neighbourNode.angle = compassDirection.getAngle();
             legalNeighbours.add(neighbourNode);
         }
         return legalNeighbours;
@@ -91,8 +93,16 @@ public class Node implements Comparable<Node>{
         this.parent = parent;
     }
 
-    public Compass getDirection() {
-        return direction;
+
+    public void setTicks(long ticks) {
+        this.ticks = ticks;
     }
 
+    public long getTicks() {
+        return ticks;
+    }
+
+    public Double getAngle() {
+        return angle;
+    }
 }

@@ -54,9 +54,7 @@ public class CentralAreaClient {
             }
             points.add(Point.fromLngLat(firstPoint.getLng(), firstPoint.getLat()));
             allPoints.add(points);
-            Polygon polygon = Polygon.fromLngLats(allPoints);
-            System.out.println(polygon);
-            return polygon;
+            return Polygon.fromLngLats(allPoints);
 
         } catch (IOException e) {
             throw new RuntimeException(e);

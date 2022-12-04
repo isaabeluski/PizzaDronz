@@ -19,23 +19,22 @@ public class Flightpath {
     Double angle;
     Double toLongitude;
     Double toLatitude;
-    int ticksSinceStartOfCalculation;
+    long ticksSinceStartOfCalculation;
 
-    public Flightpath(String orderNo, LngLat from, Double angle, LngLat to) {
+    public Flightpath(String orderNo, LngLat from, Double angle, LngLat to, long ticksSinceStartOfCalculation) {
         this.orderNo = orderNo;
         this.fromLongitude = from.lng();
         this.fromLatitude = from.lat();
         this.angle = angle;
         this.toLongitude = to.lng();
         this.toLatitude = to.lat();
-        //this.ticksSinceStartOfCalculation = ticksSinceStartOfCalculation;
+        this.ticksSinceStartOfCalculation = ticksSinceStartOfCalculation;
     }
 
     public static void outputJsonFlightpath(String day, String month, String year, ArrayList<Flightpath> flightpaths) {
         try {
 
             FileWriter file = new FileWriter("flightpath-" + year + "-" + month + "-" + day + ".json");
-            ObjectMapper Obj = new ObjectMapper();
             JSONArray list = new JSONArray();
             for (Flightpath flightpath : flightpaths) {
                 JSONObject obj = new JSONObject();
@@ -45,6 +44,7 @@ public class Flightpath {
                 obj.put("angle", flightpath.angle);
                 obj.put("toLongitude", flightpath.toLongitude);
                 obj.put("toLatitude", flightpath.toLatitude);
+                obj.put("ticksSinceStartOfCalculation", flightpath.ticksSinceStartOfCalculation);
                 list.add(obj);
             }
             Gson gson = new GsonBuilder().setPrettyPrinting().create();

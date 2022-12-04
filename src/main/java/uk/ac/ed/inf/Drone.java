@@ -18,6 +18,7 @@ public class Drone {
 
     // Starting point representing Appleton Tower in this case.
     public static final LngLat STARTING_POINT = new LngLat(-3.186874, 55.944494);
+    public static long startTime;
 
 
     public Drone(DayOrder order) {
@@ -27,54 +28,51 @@ public class Drone {
         this.order = order.sortOrderByRestaurant();
     }
 
-    public int batteryCost(ArrayList<LngLat> path) {
-        return path.size();
+    public int batteryCost(ArrayList<LngLat> path1, ArrayList<LngLat> path2) {
+        return path1.size() + path2.size();
     }
 
-    public boolean enoughBattery(ArrayList<LngLat> path) {
-        int batteryCost = batteryCost(path);
-        return battery >= batteryCost;
-    }
-
-    public void hover(Order order) {
+    public void hover(Order order, long ticks) {
         LngLat nextPos = currentPos.nextPosition(null);
         flightpath.add(new Flightpath(
                 order.getOrderNo(),
                 currentPos,
                 null,
-                nextPos));
+                nextPos,
+                ticks));
         this.battery -= 1;
     }
 
 
     public ArrayList<LngLat> makeDeliveries(Restaurant[] restaurants) {
-        HashMap<Restaurant, Path> allPaths = Path.allPaths(start, restaurants);
         ArrayList<LngLat> completeTour = new ArrayList<>();
         ArrayList<Deliveries> deliveries = new ArrayList<>();
+        startTime = System.nanoTime();
 
         for (Order ord : order) {
 
             Restaurant correspondingRestaurant = ord.restaurantOrdered(restaurants);
-            var path = allPaths.get(correspondingRestaurant);
-            var path1 = Path.toLngLatList(path.getGoToRestaurant());
-            var path2 = Path.toLngLatList(path.getGoToStart());
+            LngLat restaurantPos = new LngLat(correspondingRestaurant.getLng(), correspondingRestaurant.getLat());
+            var pathToRestaurant = Path.getPathPoints(start, restaurantPos);
+            var node1 = Path.getPathNodes(start.toNode(), restaurantPos.toNode());
+            var returnPath = Path.getPathPoints(restaurantPos, start);
+            var node2 = Path.getPathNodes(restaurantPos.toNode(), start.toNode());
 
-            if (batteryCost(path1)*2 > battery) {
+            if (batteryCost(pathToRestaurant, returnPath) > battery) {
                 // Not enough battery so don't leave.
                 break;
             }
 
             if (ord.getOrderOutcome() == OrderOutcome.ValidButNotDelivered) {
-                completeTour.addAll(path1);
-                Path.getMoves(ord, path.getGoToRestaurant());
-                hover(ord);
-                battery -= batteryCost(path1);
+                completeTour.addAll(pathToRestaurant);
+                flightpath.addAll(Path.getMoves(ord, node1));
+                //hover(ord, System.nanoTime() - startTime);
 
-                completeTour.addAll(path2);
-                Path.getMoves(ord, path.getGoToStart());
-                hover(ord);
+                completeTour.addAll(returnPath);
+                flightpath.addAll(Path.getMoves(ord, node2));
+                //hover(ord, System.nanoTime() - startTime);
                 ord.setOrderOutcome(OrderOutcome.Delivered);
-                battery -= batteryCost(path2);
+                battery -= batteryCost(pathToRestaurant, returnPath);
 
             }
 
@@ -83,10 +81,12 @@ public class Drone {
         for (Order ord : order) {
             Deliveries delivery = new Deliveries(ord.getOrderNo(), ord.getOrderOutcome(), ord.getPriceTotalInPence());
             deliveries.add(delivery);
-            System.out.println(deliveries.size());
         }
 
         Deliveries.outputJsonDeliveries("01", "01", "2023", deliveries);
+        Flightpath.outputJsonFlightpath("01", "01", "2023", flightpath);
+
+        System.out.println("Number of moves: " + flightpath.size());
 
 
         // TODO: Borrar esto después.
@@ -94,21 +94,14 @@ public class Drone {
         int count = 0;
         for (Order ord : order) {
             if (ord.getOrderOutcome() == OrderOutcome.Delivered) {
-                System.out.println("Order " + ord.restaurantOrdered(restaurants).getName() + " delivered");
                 count++;
-            }
-            if (ord.getOrderOutcome() == OrderOutcome.ValidButNotDelivered) {
-                System.out.println("Order " + ord.restaurantOrdered(restaurants).getName() + " not delivered");
             }
         }
 
         System.out.println("Number of orders delivered: " + count);
+        System.out.println("Number of total orders: " + order.size());
         //System.out.println(flightpath.get(0).angle);
         return completeTour;
-    }
-
-    public ArrayList<Flightpath> getFlightpath() {
-        return flightpath;
     }
 }
 
