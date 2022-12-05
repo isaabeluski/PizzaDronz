@@ -6,10 +6,9 @@ import java.util.*;
  * Represents the path the drone will take from the start to its destination.
  */
 public class Path {
-    private static final NoFlyZones noFlyZones = NoFlyZones.getInstance();
-    private static final CentralArea centralArea = CentralArea.getInstance();
     private final ArrayList<Node> pathInNodes = new ArrayList<>();
     private final ArrayList<LngLat> pathInLngLat = new ArrayList<>();
+    private static Node hoverNode;
 
     public Path(LngLat start, LngLat destination) {
         calculatePath(start, destination);
@@ -28,7 +27,6 @@ public class Path {
         start.calculateHeuristic(destination);
         start.setG(0.0);
         start.calculateF();
-        int intersectionsCentralArea = 0;
 
         openList.add(start);
 
@@ -43,31 +41,33 @@ public class Path {
 
             // Stop if current node is 'close to' the destination point.
             if (currentPoint.closeTo(destination.getPoint())) {
+                // Add hover move.
+                hoverNode = new Node(currentPoint);
+                hoverNode.setTicks(System.nanoTime() - Drone.startTime);
+                hoverNode.setNull();
+                hoverNode.setParent(currentNode);
                 return currentNode;
             }
 
-            // Finds all neighbours of current node.
+            // Finds all legal neighbours of current node.
             ArrayList<Node> neighbours = currentNode.findNeighbours();
 
             for (Node neighbour : neighbours) {
 
-                // Makes sure it can only get out of central area once, or enter central area once.
-                if (centralArea.intersectsCentralArea(currentNode, neighbour)) {
-                    intersectionsCentralArea++;
-                    if (intersectionsCentralArea > 1) {
-                        continue;
-                    }
-                }
+                LngLat neighbourPoint = neighbour.getPoint();
 
-                // If the neighbour can be used
-                if (!noFlyZones.intersectsNoFlyZone(currentNode, neighbour)) {
-                    LngLat neighbourPoint = neighbour.getPoint();
+                // Calculates G
+                double distanceTravelled = currentNode.getG() + currentPoint.distanceTo(neighbourPoint);
 
-                    // Calculates G
-                    double distanceTravelled = currentNode.getG() + currentPoint.distanceTo(neighbourPoint);
-
+                // If it is a new node
+                if (!closedList.contains(neighbour) && !openList.contains(neighbour)) {
+                    neighbour.setG(distanceTravelled);
+                    neighbour.calculateHeuristic(destination);
+                    neighbour.calculateF();
+                    neighbour.setParent(currentNode);
+                    openList.add(neighbour);
+                } else {
                     // If either closedList or openList contain the neighbour, check if this path is shorter.
-                    if (closedList.contains(neighbour) || openList.contains(neighbour)) {
                         if (distanceTravelled < neighbour.getG()) {
                             neighbour.setG(distanceTravelled);
                             neighbour.calculateHeuristic(destination);
@@ -79,24 +79,12 @@ public class Path {
                                 openList.add(neighbour);
                             }
                         }
-                        continue;
                     }
-
-                    // If it is a new node
-                    if (!closedList.contains(neighbour) && !openList.contains(neighbour)) {
-                        neighbour.setG(distanceTravelled);
-                        neighbour.calculateHeuristic(destination);
-                        neighbour.calculateF();
-                        neighbour.setParent(currentNode);
-                        openList.add(neighbour);
-                    }
-                }
             }
-
             closedList.add(currentNode);
             openList.remove(currentNode);
         }
-        // No path could be found - add exception.
+        // No path could be found - TODO: add exception.
         return null;
     }
 
@@ -124,15 +112,12 @@ public class Path {
 
             node = node.getParent();
         }
+
         Collections.reverse(path);
+        System.out.println(path.size());
 
-        pathInNodes.addAll(path);
         pathInLngLat.addAll(pathToLngLat(path));
-
-        // Add hover movement
-        node.setParent(node);
-        Node hover = new Node(node.getPoint());
-        path.add(hover);
+        pathInNodes.addAll(path);
 
     }
 
@@ -143,16 +128,24 @@ public class Path {
      */
     public ArrayList<Flightpath> getMoves(Order order) {
         ArrayList<Flightpath> moves = new ArrayList<>();
-        for (var node : pathInNodes) {
-            if (node.getParent() != null) {
-                moves.add(new Flightpath(
-                        order.getOrderNo(),
-                        node.getParent().getPoint(),
-                        node.getAngle(),
-                        node.getPoint(),
-                        node.getTicks()));
-            }
+
+        for (int i = 1; i < pathInNodes.size(); i++) {
+            Node node = pathInNodes.get(i);
+            moves.add(new Flightpath(
+                    order.getOrderNo(),
+                    node.getParent().getPoint(),
+                    node.getAngle(),
+                    node.getPoint(),
+                    node.getTicks()));
         }
+
+        moves.add(new Flightpath(
+                order.getOrderNo(),
+                hoverNode.getParent().getPoint(),
+                hoverNode.getAngle(),
+                hoverNode.getPoint(),
+                hoverNode.getTicks()));
+
         return moves;
     }
 

@@ -14,22 +14,13 @@ import java.util.List;
  */
 public class Order {
 
-    @JsonProperty("orderNo")
-    private String orderNo;
-    @JsonProperty("orderDate")
-    private String orderDate;
-    @JsonProperty("customer")
-    private String customer;
-    @JsonProperty("creditCardNumber")
-    private String creditCardNumber;
-    @JsonProperty("creditCardExpiry")
-    private String creditCardExpiry;
-    @JsonProperty("cvv")
-    private String cvv;
-    @JsonProperty("priceTotalInPence")
-    private int priceTotalInPence;
-    @JsonProperty("orderItems")
-    private String[] orderItems;
+    private final String orderNo;
+    private final String orderDate;
+    private final String creditCardNumber;
+    private final String creditCardExpiry;
+    private final String cvv;
+    private final int priceTotalInPence;
+    private final String[] orderItems;
     private OrderOutcome orderOutcome;
     private static final String endPoint = "orders";
 
@@ -37,11 +28,12 @@ public class Order {
     /**
      * Default constructor.
      */
-    Order(String orderNo, String orderDate, String customer, String creditCardNumber, String creditCardExpiry,
-          String cvv, int priceTotalInPence, String[] orderItems) {
+    Order(@JsonProperty("orderNo") String orderNo, @JsonProperty("orderDate") String orderDate,
+          @JsonProperty("customer") String customer, @JsonProperty("creditCardNumber") String creditCardNumber,
+          @JsonProperty("creditCardExpiry") String creditCardExpiry, @JsonProperty("cvv") String cvv,
+          @JsonProperty("priceTotalInPence") int priceTotalInPence, @JsonProperty("orderItems") String[] orderItems) {
         this.orderNo = orderNo;
         this.orderDate = orderDate;
-        this.customer = customer;
         this.creditCardNumber = creditCardNumber;
         this.creditCardExpiry = creditCardExpiry;
         this.cvv = cvv;
@@ -50,8 +42,6 @@ public class Order {
         orderOutcome = OrderOutcome.NotChecked;
     }
 
-    Order() {
-    }
 
     /**
      * Gets orders from REST server.

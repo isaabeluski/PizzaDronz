@@ -28,9 +28,6 @@ public class Deliveries {
 
     /**
      * Outputs the delivery file.
-     * @param day The day of the delivery.
-     * @param month The month of the delivery.
-     * @param year The year of the delivery.
      * @param deliveries The list of deliveries to be outputted in the file.
      */
     public static void outputJsonDeliveries(ArrayList<Deliveries> deliveries) {

@@ -7,6 +7,7 @@ import java.awt.geom.Line2D;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Singleton used to retrieve NoFlyZones from REST server.
@@ -71,6 +72,7 @@ public class NoFlyZones {
      */
     private ArrayList<Line2D.Double> getNoFlyLines(SingleNoFlyZone[] noFlyPoints) {
         ArrayList<Line2D.Double> noFlyLines = new ArrayList<>();
+
         for (SingleNoFlyZone noFlyZone : noFlyPoints) {
             Double[][] coordinates = noFlyZone.getCoordinates();
             for (int i = 0; i < coordinates.length - 1; i++) {

@@ -62,9 +62,9 @@ public class Flightpath {
                 obj.put("ticksSinceStartOfCalculation", flightpath.ticksSinceStartOfCalculation);
                 list.add(obj);
             }
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            String json = gson.toJson(list);
-            file.write(json);
+            //Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            //String json = gson.toJson(list);
+            file.write(list.toJSONString());
 
             file.close();
         } catch (IOException e) {

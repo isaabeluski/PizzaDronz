@@ -14,7 +14,6 @@ public record LngLat (Double lng, Double lat){
 
     private static final double DISTANCE_TOLERANCE = 0.00015;
 
-
     /**
      * Calculates the distance between two points.
      * @param point Calculates the distance to this point (LngLat object).

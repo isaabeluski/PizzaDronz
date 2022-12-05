@@ -4,54 +4,55 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class DayOrder {
+public class OrderAdministration {
 
     String date;
-    ArrayList<Order> orders;
+    ArrayList<Order> sortedOrders = new ArrayList<>();
+    ArrayList<Order> validatedOrders = new ArrayList<>();
     Restaurant[] restaurants;
 
-    DayOrder(String date, ArrayList<Order> orders, Restaurant[] restaurants) {
-        this.date = date;
-        this.orders = orders;
+    OrderAdministration(ArrayList<Order> orders, Restaurant[] restaurants) {
         this.restaurants = restaurants;
+        sortOrderByRestaurant(orders);
+        getFilteredOrders(sortedOrders);
     }
 
     /**
      * Get orders from a specific date and filter out the invalid orders.
      * @return List of valid orders for a specific date.
      */
-    public DayOrder getFilteredOrders() {
-        ArrayList<Order> filteredOrders = new ArrayList<>();
+    public void getFilteredOrders(ArrayList<Order> orders) {
         for (Order ord : orders) {
             if (!validCreditCard(ord)) {
-                filteredOrders.add(ord);
+                validatedOrders.add(ord);
                 continue;
             }
             if (ord.getOrderItems().length < 1 || ord.getOrderItems().length > 4) {
                 ord.setOrderOutcome(OrderOutcome.InvalidPizzaCount);
-                filteredOrders.add(ord);
+                validatedOrders.add(ord);
                 continue;
             }
             if (ord.getCvv().length() != 3) {
                 ord.setOrderOutcome(OrderOutcome.InvalidCvv);
-                filteredOrders.add(ord);
+                validatedOrders.add(ord);
                 continue;
             }
             if (!ord.arePizzasFromSameRestaurant(restaurants, ord.getOrderItems())) {
                 ord.setOrderOutcome(OrderOutcome.InvalidPizzaCombinationMultipleSuppliers);
-                filteredOrders.add(ord);
+                validatedOrders.add(ord);
                 continue;
             }
             if (ord.getDeliveryCost(ord.restaurantOrdered(restaurants)) !=
                     ord.getPriceTotalInPence()) {
                 ord.setOrderOutcome(OrderOutcome.InvalidTotal);
-                filteredOrders.add(ord);
+                validatedOrders.add(ord);
                 continue;
             }
+
+            // Otherwise, the order is valid.
             ord.setOrderOutcome(OrderOutcome.ValidButNotDelivered);
-            filteredOrders.add(ord);
+            validatedOrders.add(ord);
         }
-        return new DayOrder(this.date, filteredOrders, this.restaurants);
     }
 
     private static boolean isNumeric(String str){
@@ -182,20 +183,32 @@ public class DayOrder {
      * first.
      * @return An ArrayList of Orders, where orders from the closest restaurant are first.
      */
-    public ArrayList<Order> sortOrderByRestaurant() {
+    public void sortOrderByRestaurant(ArrayList<Order> orders) {
         ArrayList<Restaurant> arrayRestaurant = new ArrayList<>(Arrays.asList(restaurants));
         Restaurant.sortRestaurants(arrayRestaurant);
+        HashMap<Restaurant, ArrayList<Order>> map = new HashMap<>();
 
-        ArrayList<Order> sortedOrder = new ArrayList<>();
-        for (Restaurant rest : arrayRestaurant) {
-            for (Order ord : orders) {
-                Restaurant correspondingRestaurant = ord.restaurantOrdered(restaurants);
-                if (rest == correspondingRestaurant) {
-                    sortedOrder.add(ord);
-                }
+        for (Order ord : orders) {
+            Restaurant restaurant = ord.restaurantOrdered(restaurants);
+            if (map.containsKey(restaurant)) {
+                map.get(restaurant).add(ord);
+            }
+            else {
+                ArrayList<Order> newOrder = new ArrayList<>();
+                newOrder.add(ord);
+                map.put(restaurant, newOrder);
             }
         }
-        return sortedOrder;
+
+        for (Restaurant rest : arrayRestaurant) {
+            if (map.containsKey(rest)) {
+                sortedOrders.addAll(map.get(rest));
+            }
+        }
+
     }
 
+    public ArrayList<Order> getValidatedOrders() {
+        return validatedOrders;
+    }
 }

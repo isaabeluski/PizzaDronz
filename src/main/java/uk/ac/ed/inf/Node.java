@@ -13,6 +13,11 @@ public class Node implements Comparable<Node>{
 
     private Double angle = null;
 
+    private int intersectionsCentralArea = 0;
+    private static final CentralArea centralArea = CentralArea.getInstance();
+    private static final NoFlyZones noFlyZones = NoFlyZones.getInstance();
+
+
     /**
      * Constructor.
      * @param point The LngLat point of the node.
@@ -47,16 +52,41 @@ public class Node implements Comparable<Node>{
     }
 
     /**
-     * Gets all possible positions the drone can go to from the current node.
-     * @return A list of nodes representing the possible next position.
+     * Gets all possible legal positions the drone can go to from the current node. Therefore, it checks
+     * whether the no-fly-zones are being intersected and whether the drone leaves/enters the central area more
+     * than once.
+     * @return A list of nodes representing the possible legal next positions.
      */
     public ArrayList<Node> findNeighbours() {
         ArrayList<Node> legalNeighbours = new ArrayList<>();
         Compass[] values = Compass.class.getEnumConstants();
         for (Compass compassDirection : values) {
             Node neighbourNode = this.nextPosition(compassDirection);
+
+            // Checks that line between current node and neighbour does not intersect with any no-fly zones.
+            if (noFlyZones.intersectsNoFlyZone(this, neighbourNode)) {
+                continue;
+            }
+
+            // Checks that line between current node and neighbour does not leave/enter central area more than once.
+            if (centralArea.intersectsCentralArea(this, neighbourNode)) {
+                var copy = this.intersectionsCentralArea;
+
+                if (centralArea.isInsideCentralArea(this) == centralArea.isInsideCentralArea(neighbourNode)) {
+                    continue;
+                }
+
+                this.intersectionsCentralArea++;
+                if (neighbourNode.intersectionsCentralArea > 1) {
+                    this.intersectionsCentralArea = copy;
+                    continue;
+                }
+            }
+
             neighbourNode.angle = compassDirection.getAngle();
+            neighbourNode.intersectionsCentralArea = this.intersectionsCentralArea;
             legalNeighbours.add(neighbourNode);
+
         }
         return legalNeighbours;
     }
@@ -112,4 +142,15 @@ public class Node implements Comparable<Node>{
         this.ticks = ticks;
     }
 
+    public void setNull() {
+        this.angle = null;
+    }
+
+    public int getIntersectionsCentralArea() {
+        return intersectionsCentralArea;
+    }
+
+    public void increaseIntersectionsCA() {
+        this.intersectionsCentralArea += 1;
+    }
 }

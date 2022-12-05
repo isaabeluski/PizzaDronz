@@ -7,6 +7,7 @@ import com.mapbox.geojson.Point;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -16,7 +17,7 @@ public class Drone {
 
     private int battery;
     private final LngLat start;
-    private final ArrayList<Order> order;
+    private final OrderAdministration order;
     private final ArrayList<Flightpath> flightpath = new ArrayList<>();
     private static final int FULL_BATTERY = 2000;
 
@@ -31,10 +32,10 @@ public class Drone {
     public static long startTime;
 
 
-    public Drone(DayOrder order) {
+    public Drone(OrderAdministration order) {
         this.battery = FULL_BATTERY;
         this.start = STARTING_POINT;
-        this.order = order.sortOrderByRestaurant();
+        this.order = order;
     }
 
     /**
@@ -62,23 +63,24 @@ public class Drone {
         startTime = System.nanoTime();
 
         // Goes through the sorted order list, based on the restaurant with the shortest path.
-        for (Order ord : order) {
+        for (Order ord : order.getValidatedOrders()) {
 
             Restaurant correspondingRestaurant = ord.restaurantOrdered(restaurants);
             LngLat restaurantPos = new LngLat(correspondingRestaurant.getLng(), correspondingRestaurant.getLat());
 
-            var pathToRestaurant = new Path(start, restaurantPos);
-            var pathToRestaurantList = pathToRestaurant.getPathInLngLat();
-            var returnPath = new Path(restaurantPos, start);
-            var returnPathList = returnPath.getPathInLngLat();
-
-            // If there is not enough battery, do not take off.
-            if (batteryCost(pathToRestaurantList, returnPathList) > battery) {
-                break;
-            }
-
             // Only try to deliver orders that are valid and have not been delivered yet.
             if (ord.getOrderOutcome() == OrderOutcome.ValidButNotDelivered) {
+
+                var pathToRestaurant = new Path(start, restaurantPos);
+                var pathToRestaurantList = pathToRestaurant.getPathInLngLat();
+
+                var returnPath = new Path(restaurantPos, start);
+                var returnPathList = returnPath.getPathInLngLat();
+
+                if (batteryCost(pathToRestaurantList, returnPathList) > battery) {
+                    break;
+                }
+
                 // Adds path to the restaurant.
                 completeTour.addAll(pathToRestaurantList);
                 flightpath.addAll(pathToRestaurant.getMoves(ord));
@@ -94,7 +96,7 @@ public class Drone {
 
         }
 
-        for (Order ord : order) {
+        for (Order ord : order.getValidatedOrders()) {
             Deliveries delivery = new Deliveries(ord.getOrderNo(), ord.getOrderOutcome(), ord.getPriceTotalInPence());
             deliveries.add(delivery);
         }
@@ -107,13 +109,13 @@ public class Drone {
         System.out.println("Number of moves: " + flightpath.size());
         System.out.println("Battery remaining: " + battery);
         int count = 0;
-        for (Order ord : order) {
+        for (Order ord : order.getValidatedOrders()) {
             if (ord.getOrderOutcome() == OrderOutcome.Delivered) {
                 count++;
             }
         }
         System.out.println("Number of orders delivered: " + count);
-        System.out.println("Number of total orders: " + order.size());
+        System.out.println("Number of total orders: " + order.getValidatedOrders().size());
 
         return completeTour;
     }
@@ -136,9 +138,6 @@ public class Drone {
 
     /**
      * Creates a GeoJson file from a list of points.
-     * @param day The day of the month.
-     * @param month The month of the year.
-     * @param year  The year.
      * @param path  The path the drone takes.
      */
     public void outputGeoJson(ArrayList<LngLat> path) {

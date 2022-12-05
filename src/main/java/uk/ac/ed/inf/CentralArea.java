@@ -2,12 +2,16 @@ package uk.ac.ed.inf;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mapbox.geojson.Point;
+import com.mapbox.geojson.Polygon;
+import com.mapbox.turf.TurfJoins;
 
 import java.awt.geom.Line2D;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Singleton which retrieves REST Server information about the Central Area.
@@ -52,12 +56,14 @@ public class CentralArea {
 
     private final ArrayList<Line2D.Double> centralAreaLines;
     private static CentralArea centralArea;
+    private final Polygon centralPolygon;
 
     private static final String endPoint = "centralArea";
 
     private CentralArea() {
         CentralAreaPoint[] centralAreaPoints = centralCoordinates();
         this.centralAreaLines = centralLines(centralAreaPoints);
+        this.centralPolygon = centralPolygon(centralAreaPoints);
     }
 
     /**
@@ -87,6 +93,19 @@ public class CentralArea {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private Polygon centralPolygon(CentralAreaPoint[] centralAreaPoints) {
+        List<Point> points = new ArrayList<>();
+        List<List<Point>> allPoints = new ArrayList<>();
+        for (CentralAreaPoint point : centralAreaPoints) {
+            points.add(Point.fromLngLat(point.getLng(), point.getLat()));
+        }
+        allPoints.add(points);
+        Polygon polygon = Polygon.fromLngLats(allPoints);
+        System.out.println(polygon);
+        return polygon;
+
     }
 
     /**
@@ -131,6 +150,10 @@ public class CentralArea {
             }
         }
         return false;
+    }
+
+    public boolean isInsideCentralArea(Node node) {
+        return TurfJoins.inside(node.getPoint().toPoint(), this.centralPolygon);
     }
 
 }
