@@ -8,8 +8,6 @@ import java.util.*;
 public class Path {
     private final ArrayList<Node> pathInNodes = new ArrayList<>();
     private final ArrayList<LngLat> pathInLngLat = new ArrayList<>();
-    private static Node hoverNode;
-
     public Path(LngLat start, LngLat destination) {
         calculatePath(start, destination);
     }
@@ -42,10 +40,6 @@ public class Path {
             // Stop if current node is 'close to' the destination point.
             if (currentPoint.closeTo(destination.getPoint())) {
                 // Add hover move.
-                hoverNode = new Node(currentPoint);
-                hoverNode.setTicks(System.nanoTime() - Drone.startTime);
-                hoverNode.setAngleToNull();
-                hoverNode.setParent(currentNode);
                 return currentNode;
             }
 
@@ -107,14 +101,11 @@ public class Path {
         path.add(node);
 
         while (node.getParent() != null) {
-            LngLat parentPoint = node.getParent().getPoint();
             path.add(node.getParent());
-
             node = node.getParent();
         }
 
         Collections.reverse(path);
-        System.out.println(path.size());
 
         pathInLngLat.addAll(pathToLngLat(path));
         pathInNodes.addAll(path);
@@ -140,15 +131,6 @@ public class Path {
                     node.getPoint().lat(),
                     node.getTicks()));
         }
-
-        moves.add(new Flightpath(
-                order.getOrderNo(),
-                hoverNode.getParent().getPoint().lng(),
-                hoverNode.getParent().getPoint().lat(),
-                hoverNode.getAngle(),
-                hoverNode.getPoint().lng(),
-                hoverNode.getPoint().lat(),
-                hoverNode.getTicks()));
 
         return moves;
     }

@@ -85,8 +85,6 @@ public class CentralArea {
     private CentralAreaPoint[] centralCoordinates() {
         try {
             String baseUrl = Server.getInstance().getBaseUrl();
-
-            System.out.println(baseUrl + endPoint);
             String url = baseUrl + endPoint;
 
             return new ObjectMapper().readValue(new URL (url), CentralAreaPoint[].class);
@@ -108,9 +106,7 @@ public class CentralArea {
             points.add(Point.fromLngLat(point.getLng(), point.getLat()));
         }
         allPoints.add(points);
-        Polygon polygon = Polygon.fromLngLats(allPoints);
-        System.out.println(polygon);
-        return polygon;
+        return Polygon.fromLngLats(allPoints);
 
     }
 

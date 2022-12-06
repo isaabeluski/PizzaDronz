@@ -59,8 +59,6 @@ public class Server {
             if (!serverTest.greeting.endsWith("test")) {
                 System.out.println("Test failed");
                 System.exit(1);
-            } else {
-                System.out.println("Test passed");
             }
 
         } catch (IOException e) {

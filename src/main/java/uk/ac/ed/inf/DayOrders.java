@@ -2,15 +2,12 @@ package uk.ac.ed.inf;
 
 import java.util.*;
 
-public class OrderAdministration {
-
+public class DayOrders {
 
     private final ArrayList<Order> dayOrders = new ArrayList<>();
-    private final Restaurant[] restaurants = Restaurant.getRestaurants();
 
-
-    public ArrayList<Order> getDayOrders(ArrayList<Order> orders) {
-        sortOrderByRestaurant(orders);
+    public ArrayList<Order> getDayOrders(ArrayList<Order> orders, Restaurant[] restaurants) {
+        sortOrderByRestaurant(orders, restaurants);
         for (Order ord : dayOrders) {
             ord.setOrderOutcomes(restaurants);
         }
@@ -22,7 +19,7 @@ public class OrderAdministration {
      * first.
      * @return An ArrayList of Orders, where orders from the closest restaurant are first.
      */
-    private void sortOrderByRestaurant(ArrayList<Order> orders) {
+    private void sortOrderByRestaurant(ArrayList<Order> orders, Restaurant[] restaurants) {
         ArrayList<Restaurant> arrayRestaurant = new ArrayList<>(Arrays.asList(restaurants));
         Restaurant.sortRestaurants(arrayRestaurant);
         HashMap<Restaurant, ArrayList<Order>> map = new HashMap<>();

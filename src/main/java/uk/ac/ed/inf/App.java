@@ -58,8 +58,13 @@ import java.util.Date;
         Restaurant[] restaurants = Restaurant.getRestaurants();
 
         // ALL ORDERS OF A DAY
-        Drone drone = new Drone(orders);
-        drone.makeDeliveries(restaurants);
+        Drone drone = new Drone(orders, restaurants);
+        drone.makeDeliveries();
+
+        // OUTPUT FILES
+        drone.outputDroneGeoJson(drone.getCompleteTour());
+        Flightpath.outputJsonFlightpath(drone.getFlightpath());
+        Deliveries.outputJsonDeliveries(drone.getDeliveries());
 
     }
 }

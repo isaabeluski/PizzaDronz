@@ -20,6 +20,9 @@ public class Drone {
     private final ArrayList<Flightpath> flightpath = new ArrayList<>();
     private static final int FULL_BATTERY = 2000;
 
+    private final ArrayList<LngLat> completeTour = new ArrayList<>();
+    private final ArrayList<Deliveries> deliveries = new ArrayList<>();
+
     /**
      * Represents where the drone takes off from - in this case Appleton Tower.
      */
@@ -29,16 +32,18 @@ public class Drone {
      * Used to keep track of the time a movement calculation takes.
      */
     public static long startTime;
+    Restaurant[] restaurants;
 
 
     /**
      * Constructor.
-     * @param order The orders of a day.
+     * @param orders The orders of a day.
      */
-    public Drone(ArrayList<Order> orders) {
+    public Drone(ArrayList<Order> orders, Restaurant[] restaurants) {
         this.battery = FULL_BATTERY;
         this.start = STARTING_POINT;
-        this.orders = new OrderAdministration().getDayOrders(orders);
+        this.restaurants = restaurants;
+        this.orders = new DayOrders().getDayOrders(orders, restaurants);
     }
 
     /**
@@ -51,18 +56,24 @@ public class Drone {
         return path1.size() + path2.size();
     }
 
+    public Flightpath addHover(LngLat point, Order order) {
+        return new Flightpath(
+                order.getOrderNo(),
+                point.lng(),
+                point.lat(),
+                null,
+                point.lng(),
+                point.lat(),
+                System.nanoTime() - startTime);
+    }
 
     /**
      * Main method that makes the drone deliver the orders of a specific day. It goes through all orders of a day
      * and calculates the best path to the restaurant and back to the start. It takes into account the battery of the
      * drone, since it will not take off if there is not enough battery to go to the restaurant and back.
-     * @param restaurants The list of restaurants.
-     * @return A list with all the points the drone can go through in a day.
      */
-    public ArrayList<LngLat> makeDeliveries(Restaurant[] restaurants) {
+    public void makeDeliveries() {
 
-        ArrayList<LngLat> completeTour = new ArrayList<>();
-        ArrayList<Deliveries> deliveries = new ArrayList<>();
         startTime = System.nanoTime();
 
         // Goes through the sorted order list, based on the restaurant with the shortest path.
@@ -71,29 +82,35 @@ public class Drone {
             Restaurant correspondingRestaurant = ord.restaurantOrdered(restaurants);
             LngLat restaurantPos = new LngLat(correspondingRestaurant.getLng(), correspondingRestaurant.getLat());
 
-            // Only try to deliver orders that are valid and have not been delivered yet.
             if (ord.getOrderOutcome() == OrderOutcome.ValidButNotDelivered) {
 
+                // Calculates the path to the restaurant and a hover move.
                 var pathToRestaurant = new Path(start, restaurantPos);
-                var pathToRestaurantList = pathToRestaurant.getPathInLngLat();
+                var pathToRestaurantPoints = pathToRestaurant.getPathInLngLat();
+                var hoverInRestaurant = addHover(restaurantPos, ord);
 
+                // Calculates the path back to the start and a hover move.
                 var returnPath = new Path(restaurantPos, start);
-                var returnPathList = returnPath.getPathInLngLat();
+                var returnPathPoints = returnPath.getPathInLngLat();
+                var hoverAtStart = addHover(start, ord);
 
-                if (batteryCost(pathToRestaurantList, returnPathList) > battery) {
+                // Checks if the battery is enough to make the delivery.
+                if (batteryCost(pathToRestaurantPoints, returnPathPoints) > battery) {
                     break;
                 }
 
                 // Adds path to the restaurant.
-                completeTour.addAll(pathToRestaurantList);
+                completeTour.addAll(pathToRestaurantPoints);
                 flightpath.addAll(pathToRestaurant.getMoves(ord));
+                flightpath.add(hoverInRestaurant);
 
                 // Adds path back to the start.
-                completeTour.addAll(returnPathList);
+                completeTour.addAll(returnPathPoints);
                 flightpath.addAll(returnPath.getMoves(ord));
-                ord.setOrderOutcome(OrderOutcome.Delivered);
+                flightpath.add(hoverAtStart);
 
-                battery -= batteryCost(pathToRestaurantList, returnPathList);
+                ord.setOrderOutcome(OrderOutcome.Delivered);
+                battery -= batteryCost(pathToRestaurantPoints, returnPathPoints);
 
             }
         }
@@ -103,11 +120,6 @@ public class Drone {
             Deliveries delivery = new Deliveries(ord.getOrderNo(), ord.getOrderOutcome().name(), ord.getPriceTotalInPence());
             deliveries.add(delivery);
         }
-
-        // Outputs the files.
-        Deliveries.outputJsonDeliveries(deliveries);
-        Flightpath.outputJsonFlightpath(flightpath);
-        outputGeoJson(completeTour);
 
         // TODO: Borrar esto después.
         System.out.println("Number of moves: " + flightpath.size());
@@ -120,9 +132,6 @@ public class Drone {
         }
         System.out.println("Number of orders delivered: " + count);
         System.out.println("Number of total orders: " + orders.size());
-
-
-        return completeTour;
     }
 
 
@@ -146,7 +155,7 @@ public class Drone {
      * Creates a GeoJson file from a list of points.
      * @param path  The path the drone takes.
      */
-    public void outputGeoJson(ArrayList<LngLat> path) {
+    public void outputDroneGeoJson(ArrayList<LngLat> path) {
         try {
             String date = Server.getInstance().getDate();
             FileWriter file = new FileWriter("resultfiles/drone-" + date + ".geojson");
@@ -158,5 +167,16 @@ public class Drone {
         }
     }
 
+    public ArrayList<Flightpath> getFlightpath() {
+        return flightpath;
+    }
+
+    public ArrayList<Deliveries> getDeliveries() {
+        return deliveries;
+    }
+
+    public ArrayList<LngLat> getCompleteTour() {
+        return completeTour;
+    }
 }
 
