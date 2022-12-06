@@ -44,7 +44,7 @@ public class Path {
                 // Add hover move.
                 hoverNode = new Node(currentPoint);
                 hoverNode.setTicks(System.nanoTime() - Drone.startTime);
-                hoverNode.setNull();
+                hoverNode.setAngleToNull();
                 hoverNode.setParent(currentNode);
                 return currentNode;
             }

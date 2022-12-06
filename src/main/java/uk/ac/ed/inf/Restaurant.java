@@ -15,36 +15,34 @@ import java.util.HashMap;
 
 public class Restaurant implements Comparable<Restaurant> {
 
-    @JsonProperty("name")
     private String name;
-
-    @JsonProperty("longitude")
     private double lng;
-
-    @JsonProperty("latitude")
     private double lat;
-
-    @JsonProperty("menu")
     private Menu[] menus;
-
     private static final String endPoint = "restaurants";
 
     /**
      * Default constructor.
      */
-    Restaurant(String name, double lng, double lat, Menu[] menus) {
+    Restaurant(@JsonProperty("name") String name,
+               @JsonProperty("longitude") double lng,
+               @JsonProperty("latitude") double lat,
+               @JsonProperty("menu") Menu[] menus) {
         this.name = name;
         this.lng = lng;
         this.lat = lat;
         this.menus = menus;
     }
 
-    Restaurant() {
-    }
-
+    /**
+     * Gets the restaurants from the REST server.
+     * @return a list of restaurants.
+     */
     public static Restaurant[] getRestaurants() {
+
         String baseUrl = Server.getInstance().getBaseUrl();
         String url = baseUrl + endPoint;
+
         try {
             return new ObjectMapper().readValue(new URL(url), Restaurant[].class);
         } catch (IOException e) {
@@ -54,7 +52,7 @@ public class Restaurant implements Comparable<Restaurant> {
 
     /**
      * Saves the price of a menu item with its given name.
-     * @return A HashMap of menu items and their prices.
+     * @return A HashMap of menu items and their respective prices.
      */
     public HashMap<String, Integer> menuCost() {
         HashMap<String, Integer> menu = new HashMap<>();

@@ -7,7 +7,6 @@ import com.mapbox.geojson.Point;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.*;
 
 /**
@@ -17,7 +16,7 @@ public class Drone {
 
     private int battery;
     private final LngLat start;
-    private final OrderAdministration order;
+    private final ArrayList<Order> orders;
     private final ArrayList<Flightpath> flightpath = new ArrayList<>();
     private static final int FULL_BATTERY = 2000;
 
@@ -27,15 +26,19 @@ public class Drone {
     public static final LngLat STARTING_POINT = new LngLat(-3.186874, 55.944494);
 
     /**
-     * Used to keep track of the time one movement takes.
+     * Used to keep track of the time a movement calculation takes.
      */
     public static long startTime;
 
 
-    public Drone(OrderAdministration order) {
+    /**
+     * Constructor.
+     * @param order The orders of a day.
+     */
+    public Drone(ArrayList<Order> orders) {
         this.battery = FULL_BATTERY;
         this.start = STARTING_POINT;
-        this.order = order;
+        this.orders = new OrderAdministration().getDayOrders(orders);
     }
 
     /**
@@ -63,7 +66,7 @@ public class Drone {
         startTime = System.nanoTime();
 
         // Goes through the sorted order list, based on the restaurant with the shortest path.
-        for (Order ord : order.getValidatedOrders()) {
+        for (Order ord : orders) {
 
             Restaurant correspondingRestaurant = ord.restaurantOrdered(restaurants);
             LngLat restaurantPos = new LngLat(correspondingRestaurant.getLng(), correspondingRestaurant.getLat());
@@ -93,14 +96,15 @@ public class Drone {
                 battery -= batteryCost(pathToRestaurantList, returnPathList);
 
             }
-
         }
 
-        for (Order ord : order.getValidatedOrders()) {
+        // Creates a Deliveries object for every order of a day.
+        for (Order ord : orders) {
             Deliveries delivery = new Deliveries(ord.getOrderNo(), ord.getOrderOutcome(), ord.getPriceTotalInPence());
             deliveries.add(delivery);
         }
 
+        // Outputs the files.
         Deliveries.outputJsonDeliveries(deliveries);
         Flightpath.outputJsonFlightpath(flightpath);
         outputGeoJson(completeTour);
@@ -109,21 +113,23 @@ public class Drone {
         System.out.println("Number of moves: " + flightpath.size());
         System.out.println("Battery remaining: " + battery);
         int count = 0;
-        for (Order ord : order.getValidatedOrders()) {
+        for (Order ord : orders) {
             if (ord.getOrderOutcome() == OrderOutcome.Delivered) {
                 count++;
             }
         }
         System.out.println("Number of orders delivered: " + count);
-        System.out.println("Number of total orders: " + order.getValidatedOrders().size());
+        System.out.println("Number of total orders: " + orders.size());
+
 
         return completeTour;
     }
 
+
     /**
-     * Converts a list of LngLat to a FeatureCollection.
+     * Converts a list of LngLat to a FeatureCollection, so it can then be converted to a GeoJson file.
      * @param path The path the drone takes.
-     * @return The FeatureCollection.
+     * @return The path as a FeatureCollection.
      */
     private FeatureCollection lnglatToFC(ArrayList<LngLat> path){
         ArrayList<Point> points = new ArrayList<>();
@@ -151,5 +157,6 @@ public class Drone {
             e.printStackTrace();
         }
     }
+
 }
 

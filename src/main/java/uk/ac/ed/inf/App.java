@@ -1,16 +1,13 @@
 package uk.ac.ed.inf;
 
 import org.apache.commons.validator.GenericValidator;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+
 /**
- * Hello world!
- *
+ * Class where the code is executed.
  */
  public class App
 {
@@ -23,13 +20,13 @@ import java.util.Date;
         }
          */
 
-        // GETS ALL DATA FROM REST SERVER
+        // GETS DATA FROM COMMAND LINE
         String date = "2023-01-01"; // args[0];
         String baseURL = "https://ilp-rest.azurewebsites.net/"; // args[1];
         String random = "random"; //args[2];
 
 
-        // CHECKS IF DATE IS VALID
+        // CHECKS IF DATE INTRODUCED IS VALID
         SimpleDateFormat formatterOrderDate = new SimpleDateFormat("yyyy-MM-dd");
         if (!GenericValidator.isDate(date, formatterOrderDate.toPattern(), true))  {
             System.out.println("Invalid date format. Please use yyyy-MM-dd");
@@ -38,10 +35,10 @@ import java.util.Date;
         try {
             Date orderDate = formatterOrderDate.parse(date);
             Date startDates = formatterOrderDate.parse("2023-01-01");
-            Date endDates = formatterOrderDate.parse("2023-05-31");
+            Date endDates = formatterOrderDate.parse("2023-05-30");
 
             if (orderDate.before(startDates) || orderDate.after(endDates)) {
-                System.out.println("The dates must be between 2023-01-01 and 2023-05-31.");
+                System.out.println("The dates must be between 2023-01-01 and 2023-05-30.");
                 System.exit(1);
             }
         } catch (Exception e) {
@@ -50,10 +47,7 @@ import java.util.Date;
         }
 
         // CHECK IF BASE URL IS VALID
-        if (!GenericValidator.isUrl(baseURL)) {
-            System.out.println("Invalid base url.");
-            System.exit(1);
-        }
+        Server.getInstance().validUrl(baseURL);
 
         // Setup server information from args.
         Server server = Server.getInstance();
@@ -62,11 +56,9 @@ import java.util.Date;
 
         ArrayList<Order> orders = Order.getOrders();
         Restaurant[] restaurants = Restaurant.getRestaurants();
-        OrderAdministration day = new OrderAdministration(orders, restaurants);
-
 
         // ALL ORDERS OF A DAY
-        Drone drone = new Drone(day);
+        Drone drone = new Drone(orders);
         drone.makeDeliveries(restaurants);
 
     }

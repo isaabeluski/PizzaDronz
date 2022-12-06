@@ -19,6 +19,7 @@ import java.util.List;
 
 public class CentralArea {
 
+    // Nested class representing a point of the Central Area.
     private static class CentralAreaPoint {
 
         @JsonProperty("name")
@@ -78,12 +79,12 @@ public class CentralArea {
     }
 
     /**
-     * Retrieves the coordinates from the REST serve of the points that represent the polygon in Central Area.
-     * @return A list of the points of the polygon representing the Central Area.
+     * Retrieves the coordinates from the REST serve of the points that represent the polygon of Central Area.
+     * @return A list of the points of the Central Area.
      */
     private CentralAreaPoint[] centralCoordinates() {
         try {
-            String baseUrl = Server.getInstance().baseUrl;
+            String baseUrl = Server.getInstance().getBaseUrl();
 
             System.out.println(baseUrl + endPoint);
             String url = baseUrl + endPoint;
@@ -95,6 +96,11 @@ public class CentralArea {
         }
     }
 
+    /**
+     * Creates a Polygon object from the coordinates of the Central Area.
+     * @param centralAreaPoints A list of the points of the Central Area.
+     * @return The Polygon object which represents the Central Area.
+     */
     private Polygon centralPolygon(CentralAreaPoint[] centralAreaPoints) {
         List<Point> points = new ArrayList<>();
         List<List<Point>> allPoints = new ArrayList<>();
@@ -109,8 +115,8 @@ public class CentralArea {
     }
 
     /**
-     * Creates a list of lines that represent the polygon in Central Area.
-     * @param centralAreaPoints A list of the points of the polygon representing the Central Area.
+     * Creates a list of lines which form the Central Area.
+     * @param centralAreaPoints The list of points which form the Central Area.
      * @return A list of lines that represent the polygon in Central Area.
      */
     private ArrayList<Line2D.Double> centralLines(CentralAreaPoint[] centralAreaPoints) {
@@ -119,6 +125,7 @@ public class CentralArea {
         var cap = new ArrayList<>(Arrays.stream(centralAreaPoints).toList());
         cap.add(firstPoint);
 
+        // Creates the lines.
         for (int i = 0; i < cap.size() - 1; i++) {
             Line2D.Double line = new Line2D.Double(
                     cap.get(i).getLng(),
@@ -131,10 +138,10 @@ public class CentralArea {
     }
 
     /**
-     * Checks if a line intersects with any of the edges of the polygon representing the Central Area.
+     * Checks if a line formed by two given nodes intersects with the Central Area.
      * @param start The starting point of the line.
      * @param destination The ending point of the line.
-     * @return True if the line intersects any of the edged in Central Area, false otherwise.
+     * @return True if the line intersects any of the edges in Central Area, false otherwise.
      */
     public boolean intersectsCentralArea(Node start, Node destination) {
         //build line
@@ -143,7 +150,7 @@ public class CentralArea {
         Line2D.Double line = new Line2D.Double(x.longitude(), x.latitude(),
                 y.longitude(), y.latitude());
 
-        //Check if line intersects with any of the lines in the central area
+        //Check if line intersects with any of the Central Area edges.
         for (var centralLine : this.centralAreaLines) {
             if (centralLine.intersectsLine(line) || line.intersectsLine(centralLine)) {
                 return true;
@@ -152,6 +159,11 @@ public class CentralArea {
         return false;
     }
 
+    /**
+     * Checks if a node is inside the Central Area.
+     * @param node The node to be checked.
+     * @return True if the point is inside the Central Area, false otherwise.
+     */
     public boolean isInsideCentralArea(Node node) {
         return TurfJoins.inside(node.getPoint().toPoint(), this.centralPolygon);
     }

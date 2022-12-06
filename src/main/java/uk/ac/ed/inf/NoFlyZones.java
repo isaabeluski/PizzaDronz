@@ -10,10 +10,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Singleton used to retrieve NoFlyZones from REST server.
+ * Singleton used to retrieve the no-fly-zones from REST server.
  */
 public class NoFlyZones {
 
+    // Nested class which represents a single no-fly-zone.
     private static class SingleNoFlyZone {
 
         @JsonProperty("name")
@@ -30,7 +31,6 @@ public class NoFlyZones {
 
     private final ArrayList<Line2D.Double> noFlyLines;
     private static NoFlyZones noFlyZones;
-
     private static final String endPoint = "noFlyZones";
 
     private NoFlyZones() {
@@ -66,11 +66,12 @@ public class NoFlyZones {
     }
 
     /**
-     * Converts the no-fly-zones points into Line2D objects.
+     * Converts the points which form the different no-fly-zones into Line2D objects.
      * @param noFlyPoints The no-fly-zones points.
      * @return A list of the no-fly-zones lines.
      */
     private ArrayList<Line2D.Double> getNoFlyLines(SingleNoFlyZone[] noFlyPoints) {
+
         ArrayList<Line2D.Double> noFlyLines = new ArrayList<>();
 
         for (SingleNoFlyZone noFlyZone : noFlyPoints) {
@@ -94,19 +95,21 @@ public class NoFlyZones {
      * @return True if the line intersects with any of the no-fly-zones, false otherwise.
      */
     public boolean intersectsNoFlyZone(Node start, Node destination) {
-        //build line
+
+        // Creates a line from the start and destination points.
         var x = start.getPoint().toPoint();
         var y = destination.getPoint().toPoint();
         var line = new Line2D.Double(x.longitude(), x.latitude(),
                 y.longitude(), y.latitude());
 
+        // Checks if the line intersects with any of the no-fly-zones.
         for (var noFlyLine : this.noFlyLines) {
                 if (noFlyLine.intersectsLine(line) || line.intersectsLine(noFlyLine)) {
                     return true;
                 }
             }
+
         return false;
     }
-
 
 }

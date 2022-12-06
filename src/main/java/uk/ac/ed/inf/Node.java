@@ -4,16 +4,19 @@ import java.util.ArrayList;
 
 public class Node implements Comparable<Node>{
 
+    // Characteristics of a node
     private final LngLat point;
+    private Node parent;
+    private long ticks;
+    private Double angle = null;
+    private int intersectionsCentralArea = 0;
+
+    // The scores used for the A* algorithm.
     private Double F;
     private Double G = 0.0;
     private Double H = 0.0;
-    private Node parent;
-    private long ticks;
 
-    private Double angle = null;
-
-    private int intersectionsCentralArea = 0;
+    // Gets the data from the REST server.
     private static final CentralArea centralArea = CentralArea.getInstance();
     private static final NoFlyZones noFlyZones = NoFlyZones.getInstance();
 
@@ -58,8 +61,10 @@ public class Node implements Comparable<Node>{
      * @return A list of nodes representing the possible legal next positions.
      */
     public ArrayList<Node> findNeighbours() {
+
         ArrayList<Node> legalNeighbours = new ArrayList<>();
         Compass[] values = Compass.class.getEnumConstants();
+
         for (Compass compassDirection : values) {
             Node neighbourNode = this.nextPosition(compassDirection);
 
@@ -83,6 +88,7 @@ public class Node implements Comparable<Node>{
                 }
             }
 
+            // If neighbour is valid, then add it to the list of legal neighbours.
             neighbourNode.angle = compassDirection.getAngle();
             neighbourNode.intersectionsCentralArea = this.intersectionsCentralArea;
             legalNeighbours.add(neighbourNode);
@@ -103,7 +109,6 @@ public class Node implements Comparable<Node>{
 
 
     // GETTERS
-
     public Double getG() {
         return G;
     }
@@ -137,20 +142,12 @@ public class Node implements Comparable<Node>{
         this.parent = parent;
     }
 
-
     public void setTicks(long ticks) {
         this.ticks = ticks;
     }
 
-    public void setNull() {
+    public void setAngleToNull() {
         this.angle = null;
     }
 
-    public int getIntersectionsCentralArea() {
-        return intersectionsCentralArea;
-    }
-
-    public void increaseIntersectionsCA() {
-        this.intersectionsCentralArea += 1;
-    }
 }

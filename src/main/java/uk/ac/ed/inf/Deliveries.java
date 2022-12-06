@@ -20,6 +20,12 @@ public class Deliveries {
     private final String orderOutcome;
     private final int costInPence;
 
+    /**
+     * Constructor
+     * @param orderNo The order number.
+     * @param orderOutcome The outcome of the order.
+     * @param costInPence The cost of the order.
+     */
     public Deliveries(String orderNo, OrderOutcome orderOutcome, int costInPence) {
         this.orderNo = orderNo;
         this.orderOutcome = orderOutcome.name();
@@ -27,7 +33,7 @@ public class Deliveries {
     }
 
     /**
-     * Outputs the delivery file.
+     * Outputs the delivery json file.
      * @param deliveries The list of deliveries to be outputted in the file.
      */
     public static void outputJsonDeliveries(ArrayList<Deliveries> deliveries) {
@@ -35,6 +41,7 @@ public class Deliveries {
             String date = Server.getInstance().getDate();
             FileWriter file = new FileWriter("resultfiles/deliveries-" + date + ".json");
             JSONArray list = new JSONArray();
+
             for (Deliveries delivery : deliveries) {
                 JSONObject obj = new JSONObject();
                 obj.put("orderNo", delivery.orderNo);
@@ -42,10 +49,10 @@ public class Deliveries {
                 obj.put("costInPence", delivery.costInPence);
                 list.add(obj);
             }
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            String json = gson.toJson(list);
-            file.write(json);
+
+            file.write(list.toJSONString());
             file.close();
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
