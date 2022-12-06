@@ -100,7 +100,7 @@ public class Drone {
 
         // Creates a Deliveries object for every order of a day.
         for (Order ord : orders) {
-            Deliveries delivery = new Deliveries(ord.getOrderNo(), ord.getOrderOutcome(), ord.getPriceTotalInPence());
+            Deliveries delivery = new Deliveries(ord.getOrderNo(), ord.getOrderOutcome().name(), ord.getPriceTotalInPence());
             deliveries.add(delivery);
         }
 

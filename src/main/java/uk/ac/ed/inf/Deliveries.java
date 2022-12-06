@@ -1,11 +1,14 @@
 package uk.ac.ed.inf;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,23 +17,7 @@ import java.util.ArrayList;
  * Represents the deliveries made in a day and outputs a delivery file.
  */
 
-public class Deliveries {
-
-    private final String orderNo;
-    private final String orderOutcome;
-    private final int costInPence;
-
-    /**
-     * Constructor
-     * @param orderNo The order number.
-     * @param orderOutcome The outcome of the order.
-     * @param costInPence The cost of the order.
-     */
-    public Deliveries(String orderNo, OrderOutcome orderOutcome, int costInPence) {
-        this.orderNo = orderNo;
-        this.orderOutcome = orderOutcome.name();
-        this.costInPence = costInPence;
-    }
+public record Deliveries(String orderNo, String orderOutcome, int costInPence) {
 
     /**
      * Outputs the delivery json file.
@@ -39,20 +26,16 @@ public class Deliveries {
     public static void outputJsonDeliveries(ArrayList<Deliveries> deliveries) {
         try {
             String date = Server.getInstance().getDate();
-            FileWriter file = new FileWriter("resultfiles/deliveries-" + date + ".json");
-            JSONArray list = new JSONArray();
+            FileOutputStream file = new FileOutputStream("resultfiles/deliveries-" + date + ".json");
+            BufferedOutputStream buff = new BufferedOutputStream(file);
 
-            for (Deliveries delivery : deliveries) {
-                JSONObject obj = new JSONObject();
-                obj.put("orderNo", delivery.orderNo);
-                obj.put("orderOutcome", delivery.orderOutcome);
-                obj.put("costInPence", delivery.costInPence);
-                list.add(obj);
+            for(Deliveries delivery : deliveries) {
+                String json = new ObjectMapper().writeValueAsString(delivery);
+                buff.write(json.getBytes());
             }
 
-            file.write(list.toJSONString());
+            buff.close();
             file.close();
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

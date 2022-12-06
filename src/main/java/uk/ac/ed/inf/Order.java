@@ -145,7 +145,6 @@ public class Order {
 
     /**
      * Checks whether the credit card used in an order is valid.
-     * @param order The order being checked.
      * @return True if the credit card is valid, false otherwise.
      */
     public void validCreditCard() {

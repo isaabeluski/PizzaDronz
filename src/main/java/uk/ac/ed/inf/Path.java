@@ -133,17 +133,21 @@ public class Path {
             Node node = pathInNodes.get(i);
             moves.add(new Flightpath(
                     order.getOrderNo(),
-                    node.getParent().getPoint(),
+                    node.getParent().getPoint().lng(),
+                    node.getParent().getPoint().lat(),
                     node.getAngle(),
-                    node.getPoint(),
+                    node.getPoint().lng(),
+                    node.getPoint().lat(),
                     node.getTicks()));
         }
 
         moves.add(new Flightpath(
                 order.getOrderNo(),
-                hoverNode.getParent().getPoint(),
+                hoverNode.getParent().getPoint().lng(),
+                hoverNode.getParent().getPoint().lat(),
                 hoverNode.getAngle(),
-                hoverNode.getPoint(),
+                hoverNode.getPoint().lng(),
+                hoverNode.getPoint().lat(),
                 hoverNode.getTicks()));
 
         return moves;
