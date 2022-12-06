@@ -1,14 +1,11 @@
 package uk.ac.ed.inf;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,16 +23,20 @@ public record Deliveries(String orderNo, String orderOutcome, int costInPence) {
     public static void outputJsonDeliveries(ArrayList<Deliveries> deliveries) {
         try {
             String date = Server.getInstance().getDate();
-            FileOutputStream file = new FileOutputStream("resultfiles/deliveries-" + date + ".json");
-            BufferedOutputStream buff = new BufferedOutputStream(file);
+            FileWriter file = new FileWriter("resultfiles/deliveries-" + date + ".json");
+            JSONArray list = new JSONArray();
 
-            for(Deliveries delivery : deliveries) {
-                String json = new ObjectMapper().writeValueAsString(delivery);
-                buff.write(json.getBytes());
+            for (Deliveries delivery : deliveries) {
+                JSONObject obj = new JSONObject();
+                obj.put("orderNo", delivery.orderNo);
+                obj.put("orderOutcome", delivery.orderOutcome);
+                obj.put("costInPence", delivery.costInPence);
+                list.add(obj);
             }
 
-            buff.close();
+            file.write(list.toJSONString());
             file.close();
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

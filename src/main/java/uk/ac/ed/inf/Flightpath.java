@@ -1,11 +1,8 @@
 package uk.ac.ed.inf;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,16 +26,24 @@ public record Flightpath(String orderNo,
     public static void outputJsonFlightpath(ArrayList<Flightpath> flightpath) {
         try {
             String date = Server.getInstance().getDate();
-            FileOutputStream file = new FileOutputStream("resultfiles/flightpath-" + date + ".json");
-            BufferedOutputStream buffer = new BufferedOutputStream(file);
+            FileWriter file = new FileWriter("resultfiles/flightpath-" + date + ".json");
+            JSONArray list = new JSONArray();
 
-            for(Flightpath move : flightpath) {
-                String json = new ObjectMapper().writeValueAsString(move);
-                buffer.write(json.getBytes());
+            for (Flightpath move : flightpath) {
+                JSONObject obj = new JSONObject();
+                obj.put("orderNo", move.orderNo);
+                obj.put("fromLongitude", move.fromLongitude);
+                obj.put("fromLatitude", move.fromLatitude);
+                obj.put("angle", move.angle);
+                obj.put("toLongitude", move.toLongitude);
+                obj.put("toLatitude", move.toLatitude);
+                obj.put("ticksSinceStartOfCalculation", move.ticksSinceStartOfCalculation);
+                list.add(obj);
             }
 
-            buffer.close();
+            file.write(list.toJSONString());
             file.close();
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
