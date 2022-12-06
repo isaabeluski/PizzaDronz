@@ -9,6 +9,8 @@ import org.apache.commons.validator.routines.UrlValidator;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Server {
 
@@ -63,6 +65,27 @@ public class Server {
 
         } catch (IOException e) {
             System.out.println("Invalid URL");
+            System.exit(1);
+        }
+    }
+
+    public void validDate(String date) {
+        SimpleDateFormat formatterOrderDate = new SimpleDateFormat("yyyy-MM-dd");
+        if (!GenericValidator.isDate(date, formatterOrderDate.toPattern(), true))  {
+            System.out.println("Invalid date format. Please use yyyy-MM-dd");
+            System.exit(1);
+        }
+        try {
+            Date orderDate = formatterOrderDate.parse(date);
+            Date startDates = formatterOrderDate.parse("2023-01-01");
+            Date endDates = formatterOrderDate.parse("2023-05-30");
+
+            if (orderDate.before(startDates) || orderDate.after(endDates)) {
+                System.out.println("The dates must be between 2023-01-01 and 2023-05-30.");
+                System.exit(1);
+            }
+        } catch (Exception e) {
+            System.out.println("The date format is not correct. Please use yyyy-MM-dd.");
             System.exit(1);
         }
     }

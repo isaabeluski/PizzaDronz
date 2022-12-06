@@ -21,36 +21,19 @@ import java.util.Date;
          */
 
         // GETS DATA FROM COMMAND LINE
-        String date = "2023-01-01"; // args[0];
+        String date = "2023-03-01"; // args[0];
         String baseURL = "https://ilp-rest.azurewebsites.net/"; // args[1];
         String random = "random"; //args[2];
 
+        Server server = Server.getInstance();
 
         // CHECKS IF DATE INTRODUCED IS VALID
-        SimpleDateFormat formatterOrderDate = new SimpleDateFormat("yyyy-MM-dd");
-        if (!GenericValidator.isDate(date, formatterOrderDate.toPattern(), true))  {
-            System.out.println("Invalid date format. Please use yyyy-MM-dd");
-            System.exit(1);
-        }
-        try {
-            Date orderDate = formatterOrderDate.parse(date);
-            Date startDates = formatterOrderDate.parse("2023-01-01");
-            Date endDates = formatterOrderDate.parse("2023-05-30");
-
-            if (orderDate.before(startDates) || orderDate.after(endDates)) {
-                System.out.println("The dates must be between 2023-01-01 and 2023-05-30.");
-                System.exit(1);
-            }
-        } catch (Exception e) {
-            System.out.println("The date format is not correct. Please use yyyy-MM-dd.");
-            System.exit(1);
-        }
+        server.validDate(date);
 
         // CHECK IF BASE URL IS VALID
-        Server.getInstance().validUrl(baseURL);
+        server.validUrl(baseURL);
 
         // Setup server information from args.
-        Server server = Server.getInstance();
         server.setBaseUrl(baseURL);
         server.setDate(date);
 
